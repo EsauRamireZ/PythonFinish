@@ -216,18 +216,21 @@
         <form action="/registro" method="POST">
             <div class="input-group">
                 <label for="nombre">Nombre</label>
-                <input type="text" id="nombre" name="nombre" placeholder="Rafael" maxlength="25" required>
+                <input type="text" id="nombre" name="nombre" placeholder="Rafael" maxlength="25" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
+       title="Solo letras" required>
             </div>
 
             <div class="name-row">
                 <div class="input-group">
                     <label for="apPaterno">Apellido Paterno</label>
-                    <input type="text" id="apPaterno" name="apPaterno" placeholder="Hernández" maxlength="20" required>
+                    <input type="text" id="apPaterno" name="apPaterno" placeholder="Hernández" maxlength="20" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
+       title="Solo letras" required>
                 </div>
 
                 <div class="input-group">
                     <label for="apMaterno">Apellido Materno</label>
-                    <input type="text" id="apMaterno" name="apMaterno" placeholder="Pérez" maxlength="20" required>
+                    <input type="text" id="apMaterno" name="apMaterno" placeholder="Pérez" maxlength="20" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
+       title="Solo letras" required>
                 </div>
             </div>
 
@@ -238,7 +241,7 @@
 
             <div class="input-group">
                 <label for="contrasenia">Contraseña</label>
-                <input type="password" id="contrasenia" name="contrasenia" placeholder="••••••••" maxlength="20" required>
+                <input type="password" id="contrasenia" name="contrasenia" placeholder="••••••••" minlength="8" maxlength="20" required>
             </div>
 
             <button type="submit">Crear cuenta</button>
@@ -248,5 +251,16 @@
             ¿Ya tienes cuenta? <a href="/">Inicia sesión</a>
         </div>
     </div>
+
+    <script>
+function soloLetras(e) {
+    e.target.value = e.target.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+}
+
+document.getElementById('nombre').addEventListener('input', soloLetras);
+document.getElementById('apPaterno').addEventListener('input', soloLetras);
+document.getElementById('apMaterno').addEventListener('input', soloLetras);
+</script>
+
 </body>
 </html>
