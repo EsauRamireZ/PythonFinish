@@ -21,11 +21,11 @@ router.post('/registro', async (req, res) => {
         const connection = await pool;
 
         const result = await connection.request()
-            .input('nombre', sql.VarChar, nombre)
-            .input('apPaterno', sql.VarChar, apPaterno)
-            .input('apMaterno', sql.VarChar, apMaterno)
-            .input('correo', sql.VarChar, correo)
-            .input('contrasenia', sql.VarChar, contrasenia)
+            .input('nombre', sql.VarChar(25), nombre)
+            .input('apPaterno', sql.VarChar(20), apPaterno)
+            .input('apMaterno', sql.VarChar(20), apMaterno)
+            .input('correo', sql.VarChar(20), correo)
+            .input('contrasenia', sql.VarChar(20), contrasenia)
             .query(`
                 INSERT INTO registro (nombre, apPaterno, apMaterno, correo, contrasenia)
                 OUTPUT INSERTED.id
