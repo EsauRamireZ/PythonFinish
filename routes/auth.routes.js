@@ -3,23 +3,17 @@ const router = express.Router();
 const { sql, pool } = require('../config/db');
 const axios = require('axios');
 
-/* ======================
-   HOME (LOGIN)
-====================== */
+// home para login
 router.get('/', (req, res) => {
     res.sendFile('home.html', { root: 'views' });
 });
 
-/* ======================
-   FORMULARIO REGISTRO
-====================== */
+// formulario registro
 router.get('/formulario', (req, res) => {
     res.sendFile('formulario.html', { root: 'views' });
 });
 
-/* ======================
-   REGISTRO
-====================== */
+// registro
 router.post('/registro', async (req, res) => {
     const { nombre, apPaterno, apMaterno, correo, contrasenia } = req.body;
 
@@ -57,9 +51,7 @@ router.post('/registro', async (req, res) => {
     }
 });
 
-/* ======================
-   LOGIN + reCAPTCHA
-====================== */
+// login y recaptcha
 router.post('/login', async (req, res) => {
     const { correo, contrasenia, 'g-recaptcha-response': captcha } = req.body;
 
@@ -106,24 +98,18 @@ router.post('/login', async (req, res) => {
     }
 });
 
-/* ======================
-   DASHBOARD
-====================== */
+// Pagina principal del dashboard
 router.get('/dashboard', auth, (req, res) => {
     res.sendFile('dashboard.html', { root: 'views' });
 });
 
-/* ======================
-   LOGOUT
-====================== */
+// Cerrar sesión
 router.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 });
 
-/* ======================
-   MIDDLEWARE AUTH
-====================== */
+// Autenticación de middleware
 function auth(req, res, next) {
     if (!req.session.usuario) return res.redirect('/');
     next();
