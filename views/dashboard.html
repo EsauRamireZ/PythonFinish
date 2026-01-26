@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            min-height: 100vh;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, transparent 70%);
+            top: -250px;
+            right: -250px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+            bottom: -200px;
+            left: -200px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 24px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(236, 72, 153, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .breadcrumbs {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .breadcrumbs a {
+            color: #64748b;
+            text-decoration: none;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .breadcrumbs a:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            color: #ec4899;
+        }
+
+        .breadcrumbs a.active {
+            background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+        }
+
+        .breadcrumbs .separator {
+            color: #cbd5e1;
+            font-weight: 300;
+            user-select: none;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .content-text {
+            color: #475569;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .welcome-message {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px 20px;
+            }
+
+            .header-content {
+                justify-content: center;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 24px;
+                width: 100%;
+            }
+
+            .logout-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .container {
+                padding: 20px 15px;
+            }
+
+            .breadcrumbs {
+                padding: 12px 16px;
+                justify-content: center;
+            }
+
+            .breadcrumbs a {
+                font-size: 13px;
+                padding: 5px 10px;
+            }
+
+            .content-card {
+                padding: 24px 20px;
+            }
+
+            .content-title {
+                font-size: 18px;
+            }
+
+            .content-text {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            .breadcrumbs {
+                gap: 4px;
+            }
+
+            .breadcrumbs a {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+
+            .breadcrumbs .separator {
+                font-size: 12px;
+            }
+
+            .content-card {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Página Principalx</h1>
+            <a href="/logout" class="logout-btn">Cerrar sesión</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="breadcrumbs">
+            <a onclick="mostrar('Inicio', 0)" id="bread-0">Inicio</a>
+            <span class="separator">›</span>
+            <a onclick="mostrar('Categoría', 1)" id="bread-1">Categoría</a>
+            <span class="separator">›</span>
+            <a onclick="mostrar('Subcategoría', 2)" id="bread-2">Subcategoría</a>
+            <span class="separator">›</span>
+            <a onclick="mostrar('Página', 3)" id="bread-3">Página</a>
+        </div>
+
+        <div class="content-card">
+            <div class="content-title" id="content-title">Bienvenido</div>
+            <div class="content-text" id="content-text">
+                <span class="welcome-message">Haz clic en una sección del breadcrumb para navegar</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentActive = null;
+
+        function mostrar(seccion, index) {
+            // Actualizar contenido
+            document.getElementById('content-title').innerText = seccion;
+            document.getElementById('content-text').innerHTML = 
+                `<p>Estás navegando en la sección: <strong>${seccion}</strong></p>
+                 <p style="margin-top: 10px; color: #64748b;">Aquí puedes agregar el contenido específico para esta sección.</p>`;
+
+            // Remover clase active de todos
+            if (currentActive !== null) {
+                document.getElementById(`bread-${currentActive}`).classList.remove('active');
+            }
+
+            // Agregar clase active al seleccionado
+            document.getElementById(`bread-${index}`).classList.add('active');
+            currentActive = index;
+
+            // Reiniciar animación
+            const card = document.querySelector('.content-card');
+            card.style.animation = 'none';
+            setTimeout(() => {
+                card.style.animation = 'fadeIn 0.4s ease';
+            }, 10);
+        }
+    </script>
+</body>
+</html>
