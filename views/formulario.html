@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -64,6 +65,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -206,8 +208,33 @@
                 font-size: 24px;
             }
         }
+
+        .password-meter {
+    margin-top: 8px;
+}
+
+.meter-bar {
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#meter-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+#meter-text {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Crear cuenta</h1>
@@ -216,21 +243,21 @@
         <form action="/registro" method="POST">
             <div class="input-group">
                 <label for="nombre">Nombre</label>
-                <input type="text" id="nombre" name="nombre" placeholder="Rafael" maxlength="25" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
-       title="Solo letras" required>
+                <input type="text" id="nombre" name="nombre" placeholder="Rafael" maxlength="25"
+                    pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" title="Solo letras" required>
             </div>
 
             <div class="name-row">
                 <div class="input-group">
                     <label for="apPaterno">Apellido Paterno</label>
-                    <input type="text" id="apPaterno" name="apPaterno" placeholder="Hernández" maxlength="20" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
-       title="Solo letras" required>
+                    <input type="text" id="apPaterno" name="apPaterno" placeholder="Hernández" maxlength="20"
+                        pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" title="Solo letras" required>
                 </div>
 
                 <div class="input-group">
                     <label for="apMaterno">Apellido Materno</label>
-                    <input type="text" id="apMaterno" name="apMaterno" placeholder="Pérez" maxlength="20" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+"
-       title="Solo letras" required>
+                    <input type="text" id="apMaterno" name="apMaterno" placeholder="Pérez" maxlength="20"
+                        pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" title="Solo letras" required>
                 </div>
             </div>
 
@@ -241,7 +268,15 @@
 
             <div class="input-group">
                 <label for="contrasenia">Contraseña</label>
-                <input type="password" id="contrasenia" name="contrasenia" placeholder="••••••••" minlength="8" maxlength="20" required>
+                <input type="password" id="contrasenia" name="contrasenia" placeholder="••••••••" minlength="8"
+                    maxlength="20" required>
+
+                <div class="password-meter">
+                    <div class="meter-bar">
+                        <div id="meter-fill"></div>
+                    </div>
+                    <p id="meter-text"></p>
+                </div>
             </div>
 
             <button type="submit">Crear cuenta</button>
@@ -253,14 +288,46 @@
     </div>
 
     <script>
-function soloLetras(e) {
-    e.target.value = e.target.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
-}
+    function soloLetras(e) {
+        e.target.value = e.target.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+    }
 
-document.getElementById('nombre').addEventListener('input', soloLetras);
-document.getElementById('apPaterno').addEventListener('input', soloLetras);
-document.getElementById('apMaterno').addEventListener('input', soloLetras);
+    document.getElementById('nombre').addEventListener('input', soloLetras);
+    document.getElementById('apPaterno').addEventListener('input', soloLetras);
+    document.getElementById('apMaterno').addEventListener('input', soloLetras);
+
+    // ===== Medidor de seguridad de contraseña =====
+    const passwordInput = document.getElementById('contrasenia');
+    const meterFill = document.getElementById('meter-fill');
+    const meterText = document.getElementById('meter-text');
+
+    passwordInput.addEventListener('input', () => {
+        const value = passwordInput.value;
+        let strength = 0;
+
+        if (value.length >= 8) strength++;
+        if (/[A-Z]/.test(value)) strength++;
+        if (/[a-z]/.test(value)) strength++;
+        if (/\d/.test(value)) strength++;
+        if (/[@$!%*?&#_\-]/.test(value)) strength++;
+
+        if (strength <= 2) {
+            meterFill.style.width = '33%';
+            meterFill.style.background = '#ef4444';
+            meterText.textContent = 'Débil';
+            meterText.style.color = '#ef4444';
+        } else if (strength <= 4) {
+            meterFill.style.width = '66%';
+            meterFill.style.background = '#f59e0b';
+            meterText.textContent = 'Media';
+            meterText.style.color = '#f59e0b';
+        } else {
+            meterFill.style.width = '100%';
+            meterFill.style.background = '#22c55e';
+            meterText.textContent = 'Fuerte';
+            meterText.style.color = '#22c55e';
+        }
+    });
 </script>
-
 </body>
 </html>
