@@ -51,7 +51,6 @@ router.post('/registro', async (req, res) => {
     }
 });
 
-// login y recaptcha
 router.post('/login', async (req, res) => {
     const { correo, contrasenia, 'g-recaptcha-response': captcha } = req.body;
 
@@ -60,6 +59,7 @@ router.post('/login', async (req, res) => {
     }
 
     try {
+        // validar reCAPTCHA
         const secretKey = '6LebTlYsAAAAAD0Q3XM3e6ah7CctvUEK4OEclWDR';
 
         const captchaResponse = await axios.post(
@@ -74,22 +74,37 @@ router.post('/login', async (req, res) => {
 
         const connection = await pool;
 
-        const result = await connection.request()
+        // verificar si el correo existe
+        const correoExiste = await connection.request()
             .input('correo', sql.VarChar, correo)
-            .input('contrasenia', sql.VarChar, contrasenia)
             .query(`
-                SELECT r.id, r.nombre
-                FROM registro r
-                INNER JOIN usuario u ON r.id = u.id
-                WHERE u.correo = @correo
-                AND u.contrasenia = @contrasenia
+                SELECT id, contrasenia
+                FROM usuario
+                WHERE correo = @correo
             `);
 
-        if (result.recordset.length === 0) {
-            return res.redirect('/?error=Correo o contraseña incorrectos');
+        // Correo NO existe
+        if (correoExiste.recordset.length === 0) {
+            return res.redirect('/?error=Correo y contraseña incorrectos');
         }
 
-        req.session.usuario = result.recordset[0];
+        const usuarioDB = correoExiste.recordset[0];
+
+        // Contraseña incorrecta
+        if (usuarioDB.contrasenia !== contrasenia) {
+            return res.redirect('/?error=Contraseña incorrecta');
+        }
+
+        // Login exitoso, crear sesión
+        const usuario = await connection.request()
+            .input('id', sql.Int, usuarioDB.id)
+            .query(`
+                SELECT id, nombre
+                FROM registro
+                WHERE id = @id
+            `);
+
+        req.session.usuario = usuario.recordset[0];
         res.redirect('/dashboard');
 
     } catch (err) {
@@ -97,6 +112,7 @@ router.post('/login', async (req, res) => {
         res.redirect('/?error=Error interno, intenta más tarde');
     }
 });
+
 
 // Pagina principal del dashboard
 router.get('/dashboard', auth, (req, res) => {

@@ -264,6 +264,8 @@
             <div class="input-group">
                 <label for="correo">Correo electrónico</label>
                 <input type="email" id="correo" name="correo" placeholder="tu@email.com" maxlength="25" required>
+                <div id="correo-error" style="display:none;color:#ef4444;font-size:13px;margin-top:6px;">
+                Incluya el dominio, por ejemplo: usuario@gmail.com</div>
             </div>
 
             <div class="input-group">
@@ -288,20 +290,62 @@
     </div>
 
     <script>
-    function soloLetras(e) {
-        e.target.value = e.target.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+    // ===== NOMBRE: LETRAS + MAX 1 ESPACIO =====
+    function nombreUnEspacio(e) {
+        let valor = e.target.value;
+        valor = valor.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
+        valor = valor.replace(/^\s+/, '');
+        valor = valor.replace(/\s{2,}/g, ' ');
+        const partes = valor.split(' ');
+        if (partes.length > 2) valor = partes[0] + ' ' + partes[1];
+        e.target.value = valor;
     }
 
-    document.getElementById('nombre').addEventListener('input', soloLetras);
-    document.getElementById('apPaterno').addEventListener('input', soloLetras);
-    document.getElementById('apMaterno').addEventListener('input', soloLetras);
+    // ===== APELLIDOS: LETRAS SIN ESPACIOS =====
+    function soloLetrasSinEspacios(e) {
+        e.target.value = e.target.value
+            .replace(/\s/g, '')
+            .replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ]/g, '');
+    }
 
-    // ===== Medidor de seguridad de contraseña =====
+    document.getElementById('nombre').addEventListener('input', nombreUnEspacio);
+    document.getElementById('apPaterno').addEventListener('input', soloLetrasSinEspacios);
+    document.getElementById('apMaterno').addEventListener('input', soloLetrasSinEspacios);
+
+    // ===== CORREO: MENSAJE TIPO NAVEGADOR =====
+    const correo = document.getElementById('correo');
+    const correoError = document.getElementById('correo-error');
+
+    function correoValido(valor) {
+        return /^[^@]+@[^@]+\.[a-zA-Z]{2,}$/.test(valor);
+    }
+
+    correo.addEventListener('input', () => {
+        correo.value = correo.value.replace(/\s/g, '');
+
+        if (correo.value === '') {
+            correoError.style.display = 'none';
+            correo.style.borderColor = '#e2e8f0';
+            return;
+        }
+
+        if (!correoValido(correo.value)) {
+            correoError.style.display = 'block';
+            correo.style.borderColor = '#ef4444';
+        } else {
+            correoError.style.display = 'none';
+            correo.style.borderColor = '#22c55e';
+        }
+    });
+
+    // ===== CONTRASEÑA: SIN ESPACIOS + MEDIDOR =====
     const passwordInput = document.getElementById('contrasenia');
     const meterFill = document.getElementById('meter-fill');
     const meterText = document.getElementById('meter-text');
 
     passwordInput.addEventListener('input', () => {
+        passwordInput.value = passwordInput.value.replace(/\s/g, '');
+
         const value = passwordInput.value;
         let strength = 0;
 
@@ -326,6 +370,16 @@
             meterFill.style.background = '#22c55e';
             meterText.textContent = 'Fuerte';
             meterText.style.color = '#22c55e';
+        }
+    });
+
+    // ===== BLOQUEO FINAL (SIN ALERT) =====
+    document.querySelector('form').addEventListener('submit', (e) => {
+        if (!correoValido(correo.value)) {
+            e.preventDefault();
+            correo.focus();
+            correoError.style.display = 'block';
+            correo.style.borderColor = '#ef4444';
         }
     });
 </script>
