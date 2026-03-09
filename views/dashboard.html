@@ -1,309 +1,543 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
-            min-height: 100vh;
-            padding: 0;
-            position: relative;
-            overflow-x: hidden;
-        }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-        body::before {
-            content: '';
-            position: fixed;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, transparent 70%);
-            top: -250px;
-            right: -250px;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
-            bottom: -200px;
-            left: -200px;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 24px 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid rgba(236, 72, 153, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        h1 {
-            background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 28px;
-            font-weight: 700;
-        }
-
-        .logout-btn {
-            padding: 10px 24px;
-            background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
-        }
-
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-
-        .breadcrumbs {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .breadcrumbs a {
-            color: #64748b;
-            text-decoration: none;
-            cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .breadcrumbs a:hover {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-            color: #ec4899;
-        }
-
-        .breadcrumbs a.active {
-            background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
-            color: white;
-            box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
-        }
-
-        .breadcrumbs .separator {
-            color: #cbd5e1;
-            font-weight: 300;
-            user-select: none;
-        }
-
-        .content-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .content-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 15px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f1f5f9;
-        }
-
-        .content-text {
-            color: #475569;
-            line-height: 1.6;
-            font-size: 15px;
-        }
-
-        .welcome-message {
-            color: #64748b;
-            font-style: italic;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 20px 20px;
-            }
-
-            .header-content {
-                justify-content: center;
-                text-align: center;
-            }
-
-            h1 {
-                font-size: 24px;
-                width: 100%;
-            }
-
-            .logout-btn {
-                width: 100%;
-                text-align: center;
-            }
-
-            .container {
-                padding: 20px 15px;
-            }
-
-            .breadcrumbs {
-                padding: 12px 16px;
-                justify-content: center;
-            }
-
-            .breadcrumbs a {
-                font-size: 13px;
-                padding: 5px 10px;
-            }
-
-            .content-card {
-                padding: 24px 20px;
-            }
-
-            .content-title {
-                font-size: 18px;
-            }
-
-            .content-text {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 22px;
-            }
-
-            .breadcrumbs {
-                gap: 4px;
-            }
-
-            .breadcrumbs a {
-                font-size: 12px;
-                padding: 4px 8px;
-            }
-
-            .breadcrumbs .separator {
-                font-size: 12px;
-            }
-
-            .content-card {
-                padding: 20px 16px;
-            }
-        }
-    </style>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#312e81 100%);
+min-height:100vh;
+}
+.header{
+background:rgba(255,255,255,.95);
+padding:24px 30px;
+box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.header-content{
+max-width:1200px;
+margin:0 auto;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+h1{
+background:linear-gradient(135deg,#ec4899 0%,#a855f7 100%);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+font-size:28px;
+font-weight:700;
+}
+.logout-btn{
+padding:10px 24px;
+background:linear-gradient(135deg,#ec4899 0%,#a855f7 100%);
+color:white;
+text-decoration:none;
+border-radius:10px;
+font-weight:600;
+}
+.container{
+max-width:1200px;
+margin:30px auto;
+padding:0 20px;
+}
+.breadcrumbs{
+background:white;
+padding:16px 24px;
+border-radius:12px;
+margin-bottom:25px;
+display:flex;
+gap:10px;
+}
+.breadcrumbs a{
+cursor:pointer;
+text-decoration:none;
+color:#64748b;
+font-weight:500;
+}
+.breadcrumbs a.active{
+color:#ec4899;
+font-weight:700;
+}
+.content-card{
+background:white;
+padding:30px;
+border-radius:16px;
+}
+</style>
 </head>
+
 <body>
-    <div class="header">
-        <div class="header-content">
-            <h1>Página Principalx</h1>
-            <a href="/logout" class="logout-btn">Cerrar sesión</a>
-        </div>
-    </div>
 
-    <div class="container">
-        <div class="breadcrumbs">
-            <a onclick="mostrar('Inicio', 0)" id="bread-0">Inicio</a>
-            <span class="separator">›</span>
-            <a onclick="mostrar('Categoría', 1)" id="bread-1">Categoría</a>
-            <span class="separator">›</span>
-            <a onclick="mostrar('Subcategoría', 2)" id="bread-2">Subcategoría</a>
-            <span class="separator">›</span>
-            <a onclick="mostrar('Página', 3)" id="bread-3">Página</a>
-        </div>
+<div class="header">
+<div class="header-content">
+<h1>Panel Principal</h1>
+<a href="/views/home.html" class="logout-btn">Cerrar sesión</a>
+</div>
+</div>
 
-        <div class="content-card">
-            <div class="content-title" id="content-title">Bienvenido</div>
-            <div class="content-text" id="content-text">
-                <span class="welcome-message">Haz clic en una sección del breadcrumb para navegar</span>
-            </div>
-        </div>
-    </div>
+<div class="container">
 
-    <script>
-        let currentActive = null;
+<div class="breadcrumbs">
+<a onclick="mostrar('Inicio',0)" id="bread-0">Inicio</a>
+<span>›</span>
+<a onclick="mostrar('FTP',1)" id="bread-1">FTP</a>
+<span>›</span>
+<a onclick="mostrar('CRUD',2)" id="bread-2">CRUD</a>
+</div>
 
-        function mostrar(seccion, index) {
-            // Actualizar contenido
-            document.getElementById('content-title').innerText = seccion;
-            document.getElementById('content-text').innerHTML = 
-                `<p>Estás navegando en la sección: <strong>${seccion}</strong></p>
-                 <p style="margin-top: 10px; color: #64748b;">Aquí puedes agregar el contenido específico para esta sección.</p>`;
+<div class="content-card">
+<h4 id="content-title">Bienvenido</h4>
+<div id="content-text">
+<p>Selecciona una sección.</p>
+</div>
+</div>
 
-            // Remover clase active de todos
-            if (currentActive !== null) {
-                document.getElementById(`bread-${currentActive}`).classList.remove('active');
-            }
+</div>
 
-            // Agregar clase active al seleccionado
-            document.getElementById(`bread-${index}`).classList.add('active');
-            currentActive = index;
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-            // Reiniciar animación
-            const card = document.querySelector('.content-card');
-            card.style.animation = 'none';
-            setTimeout(() => {
-                card.style.animation = 'fadeIn 0.4s ease';
-            }, 10);
-        }
-    </script>
+<script>
+
+let currentActive = null;
+let currentPage = 1;
+
+/* =========================
+   NAVEGACIÓN
+========================= */
+function mostrar(seccion,index){
+
+document.getElementById('content-title').innerText = seccion;
+
+if(currentActive!==null){
+document.getElementById(`bread-${currentActive}`).classList.remove('active');
+}
+
+document.getElementById(`bread-${index}`).classList.add('active');
+currentActive=index;
+
+if(seccion==="Inicio") mostrarInicio();
+if(seccion==="FTP") mostrarFTP();
+if(seccion==="CRUD") mostrarCRUD();
+}
+
+/* =========================
+   INICIO (SOLO CARRUSEL)
+========================= */
+function mostrarInicio(){
+document.getElementById('content-text').innerHTML=`
+<div id="carouselContainer"></div>
+`;
+cargarCarrusel();
+}
+
+/* =========================
+   FTP (FORM + CARRUSEL)
+========================= */
+function mostrarFTP(){
+document.getElementById('content-text').innerHTML=`
+
+<form id="uploadForm" enctype="multipart/form-data" class="mb-4">
+<input type="file" name="imagen" accept=".jpg,.png" 
+class="form-control mb-2" required>
+<button class="btn btn-primary">Subir Imagen</button>
+</form>
+
+<div id="carouselContainer"></div>
+`;
+
+document.getElementById("uploadForm")
+.addEventListener("submit", subirImagen);
+
+cargarCarrusel();
+}
+
+/* =========================
+   SUBIR IMAGEN (FETCH)
+========================= */
+async function subirImagen(e){
+e.preventDefault();
+
+const formData = new FormData(e.target);
+
+await fetch('/upload-image',{
+method:'POST',
+body:formData
+});
+
+e.target.reset();
+cargarCarrusel();
+}
+
+/* =========================
+   CARRUSEL
+========================= */
+function cargarCarrusel(){
+
+fetch('/images')
+.then(res=>res.json())
+.then(images=>{
+
+const container = document.getElementById('carouselContainer');
+
+if(!images.length){
+container.innerHTML="<p>No hay imágenes subidas.</p>";
+return;
+}
+
+let indicators = images.map((_,i)=>`
+<button type="button" data-bs-target="#carouselExample"
+data-bs-slide-to="${i}"
+class="${i===0?'active':''}"
+${i===0?'aria-current="true"':''}
+aria-label="Slide ${i+1}">
+</button>
+`).join('');
+
+let slides=images.map((img,i)=>`
+<div class="carousel-item ${i===0?'active':''}">
+<img src="${img}"
+class="d-block w-100 rounded"
+style="max-height:500px; object-fit:contain; background:#000;">
+</div>
+`).join('');
+
+container.innerHTML=`
+<div id="carouselExample"
+class="carousel slide carousel-fade"
+data-bs-ride="carousel">
+
+<div class="carousel-indicators">
+${indicators}
+</div>
+
+<div class="carousel-inner rounded">
+${slides}
+</div>
+
+<button class="carousel-control-prev"
+type="button"
+data-bs-target="#carouselExample"
+data-bs-slide="prev">
+<span class="carousel-control-prev-icon"></span>
+</button>
+
+<button class="carousel-control-next"
+type="button"
+data-bs-target="#carouselExample"
+data-bs-slide="next">
+<span class="carousel-control-next-icon"></span>
+</button>
+
+</div>
+`;
+
+});
+}
+
+/* =========================
+   CRUD
+========================= */
+
+let personaIdEliminar = null;
+
+function mostrarCRUD(){
+
+document.getElementById('content-text').innerHTML=`
+
+<input type="text" id="searchInput"
+class="form-control mb-3"
+placeholder="Buscar por nombre...">
+
+<button type="button" class="btn btn-primary mb-3" id="btnAgregar">Agregar Persona</button>
+
+<table class="table table-hover">
+<thead>
+<tr>
+<th>Nombre</th>
+<th>País</th>
+<th>Estado</th>
+<th>Dirección</th>
+<th>CP</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody id="tablaPersonas"></tbody>
+</table>
+
+<nav>
+<ul class="pagination" id="paginacion"></ul>
+</nav>
+
+<!-- MODAL ELIMINAR -->
+<div class="modal fade" id="modalEliminar" tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title">Confirmar Eliminación</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+¿Seguro que deseas eliminar este registro?
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+<button type="button" class="btn btn-danger" id="confirmarEliminar">Eliminar</button>
+</div>
+</div>
+</div>
+</div>
+`;
+
+document.getElementById("searchInput")
+.addEventListener("keyup",()=>cargarDatos(1));
+
+document.getElementById("btnAgregar")
+.addEventListener("click",()=>abrirFormulario());
+
+document.getElementById("confirmarEliminar")
+.addEventListener("click",eliminarConfirmado);
+
+cargarDatos();
+}
+
+/* =========================
+   LISTAR
+========================= */
+async function cargarDatos(page=1){
+currentPage = page;
+
+const search = document.getElementById("searchInput")?.value || '';
+
+const res = await fetch(`/api/personas?page=${page}&search=${search}`);
+const json = await res.json();
+
+const tbody = document.getElementById("tablaPersonas");
+tbody.innerHTML="";
+
+if(!json.data || json.data.length===0){
+tbody.innerHTML=`<tr><td colspan="7">No hay registros</td></tr>`;
+return;
+}
+
+json.data.forEach(p=>{
+const tr = document.createElement("tr");
+
+tr.innerHTML=`
+<td>${p.nombre_completo}</td>
+<td>${p.pais}</td>
+<td>${p.estado}</td>
+<td>${p.direccion}</td>
+<td>${p.codigo_postal}</td>
+<td>
+<button type="button" class="btn btn-warning btn-sm btnEditar">Editar</button>
+<button type="button" class="btn btn-danger btn-sm btnEliminar">Eliminar</button>
+</td>
+`;
+
+tr.querySelector(".btnEditar")
+.addEventListener("click",()=>abrirFormulario(p.id));
+
+tr.querySelector(".btnEliminar")
+.addEventListener("click",()=>mostrarModalEliminar(p.id));
+
+tbody.appendChild(tr);
+});
+
+renderPaginacion(json.totalPages,page);
+}
+
+/* =========================
+   FORMULARIO
+========================= */
+function abrirFormulario(id=null){
+
+document.getElementById('content-text').innerHTML=`
+<h5 class="mb-3">${id ? 'Editar Persona' : 'Nueva Persona'}</h5>
+
+<form id="personaForm">
+
+<input type="hidden" id="personaId">
+
+<input type="text" id="nombre" maxlength="30"
+pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\\s]+"
+class="form-control mb-2"
+placeholder="Nombre completo"
+required>
+
+<input type="text" id="pais" maxlength="15"
+pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\\s]+"
+class="form-control mb-2"
+placeholder="País"
+required>
+
+<input type="text" id="estado" maxlength="15"
+pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\\s]+"
+class="form-control mb-2"
+placeholder="Estado"
+required>
+
+<input type="text" id="direccion" maxlength="30"
+class="form-control mb-2"
+placeholder="Dirección"
+required>
+
+<input type="text" id="cp" maxlength="5"
+pattern="[0-9]{5}"
+class="form-control mb-2"
+placeholder="Código Postal"
+required>
+
+<button type="submit" class="btn btn-primary">Guardar</button>
+<button type="button" class="btn btn-secondary" onclick="mostrarCRUD()">Cancelar</button>
+</form>
+`;
+
+// Bloqueo en tiempo real para nombre, pais, estado
+const soloLetras = /[^A-Za-zÁÉÍÓÚáéíóúñÑ\s]/g;
+
+['nombre','pais','estado'].forEach(id=>{
+    document.getElementById(id)
+    .addEventListener('input', function(){
+        this.value = this.value.replace(soloLetras, '');
+    });
+});
+
+// Bloqueo en tiempo real para CP (solo números)
+document.getElementById("cp")
+.addEventListener('input', function(){
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+document.getElementById("personaForm")
+.addEventListener("submit", guardarPersona);
+
+if(id){
+    cargarPersona(id);
+}
+}
+
+async function guardarPersona(e){
+e.preventDefault();
+
+const id = document.getElementById("personaId").value;
+
+const data = {
+nombre_completo: document.getElementById("nombre").value.trim(),
+pais: document.getElementById("pais").value.trim(),
+estado: document.getElementById("estado").value.trim(),
+direccion: document.getElementById("direccion").value.trim(),
+codigo_postal: document.getElementById("cp").value.trim()
+};
+
+if(id){
+await fetch(`/api/personas/${id}`,{
+method:"PUT",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify(data)
+});
+}else{
+await fetch(`/api/personas`,{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify(data)
+});
+}
+
+mostrarCRUD();
+}
+
+async function cargarPersona(id){
+const res = await fetch(`/api/personas/${id}`);
+const p = await res.json();
+
+if(!p){
+alert("Registro no encontrado");
+mostrarCRUD();
+return;
+}
+
+document.getElementById("personaId").value = p.id;
+document.getElementById("nombre").value = p.nombre_completo;
+document.getElementById("pais").value = p.pais;
+document.getElementById("estado").value = p.estado;
+document.getElementById("direccion").value = p.direccion;
+document.getElementById("cp").value = p.codigo_postal;
+}
+
+/* =========================
+   ELIMINAR CON MODAL
+========================= */
+function mostrarModalEliminar(id){
+personaIdEliminar = id;
+const modal = new bootstrap.Modal(document.getElementById('modalEliminar'));
+modal.show();
+}
+
+async function eliminarConfirmado(){
+if(!personaIdEliminar) return;
+
+await fetch(`/api/personas/${personaIdEliminar}`,{method:"DELETE"});
+
+const modal = bootstrap.Modal.getInstance(document.getElementById('modalEliminar'));
+modal.hide();
+
+personaIdEliminar = null;
+
+cargarDatos(currentPage);
+}
+
+// Función para renderizar paginación
+function renderPaginacion(totalPages, page){
+
+    const ul = document.getElementById("paginacion");
+    ul.innerHTML = "";
+
+    if(totalPages <= 1) return;
+
+    // Botón Anterior
+    ul.innerHTML += `
+        <li class="page-item ${page === 1 ? 'disabled' : ''}">
+            <a class="page-link" 
+               onclick="cargarDatos(${page - 1})"
+               style="cursor:pointer; border-radius:8px 0 0 8px; font-weight:600;">
+                &laquo;
+            </a>
+        </li>
+    `;
+
+    // Números de página
+    for(let i = 1; i <= totalPages; i++){
+        ul.innerHTML += `
+            <li class="page-item ${i === page ? 'active' : ''}">
+                <a class="page-link"
+                   onclick="cargarDatos(${i})"
+                   style="cursor:pointer; font-weight:600;">
+                    ${i}
+                </a>
+            </li>
+        `;
+    }
+
+    // Botón Siguiente
+    ul.innerHTML += `
+        <li class="page-item ${page === totalPages ? 'disabled' : ''}">
+            <a class="page-link"
+               onclick="cargarDatos(${page + 1})"
+               style="cursor:pointer; border-radius:0 8px 8px 0; font-weight:600;">
+                &raquo;
+            </a>
+        </li>
+    `;
+}
+
+</script>
+
 </body>
 </html>
