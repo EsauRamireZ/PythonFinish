@@ -97,7 +97,7 @@ router.get('/images', async (req, res) => {
 
         const images = files
             .filter(f => f.name.endsWith('.jpg') || f.name.endsWith('.png'))
-            .map(f => `http://gafitas.somee.com/uploads/${f.name}`);
+            .map(f => `https://gafitas.somee.com/uploads/${f.name}`);
 
         // Guardar en cache
         cacheImages = images;
