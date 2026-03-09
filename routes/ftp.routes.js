@@ -10,23 +10,13 @@ const path = require('path');
 ================================ */
 let cacheImages = [];
 let lastUpdate = 0;
-const CACHE_TIME = 60000; // 1 minuto
+const CACHE_TIME = 60000;
 
 /* ================================
-   CONFIGURACIÓN MULTER
+   CONFIGURACIÓN MULTER (MEMORIA)
 ================================ */
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, unique + path.extname(file.originalname));
-    }
-});
-
 const upload = multer({
-    storage,
+    storage: multer.memoryStorage(),
     fileFilter: (req, file, cb) => {
         if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
             cb(null, true);
@@ -45,7 +35,15 @@ router.post('/upload-image', upload.single('imagen'), async (req, res) => {
 
     const client = new ftp.Client();
 
+    const filename = Date.now() + '-' + Math.round(Math.random() * 1e9)
+                     + path.extname(req.file.originalname);
+
+    const tmpPath = `/tmp/${filename}`;
+
     try {
+        // Guardar en /tmp (Render siempre tiene esta carpeta)
+        fs.writeFileSync(tmpPath, req.file.buffer);
+
         await client.access({
             host: 'gafitas.somee.com',
             user: 'rafass',
@@ -53,13 +51,12 @@ router.post('/upload-image', upload.single('imagen'), async (req, res) => {
             secure: false
         });
 
-        const remotePath = `/www.gafitas.somee.com/uploads/${req.file.filename}`;
+        const remotePath = `/www.gafitas.somee.com/uploads/${filename}`;
 
-        await client.uploadFrom(req.file.path, remotePath);
+        await client.uploadFrom(tmpPath, remotePath);
 
-        fs.unlinkSync(req.file.path);
+        fs.unlinkSync(tmpPath);
 
-        // 🔥 Limpiar cache para forzar actualización
         cacheImages = [];
         lastUpdate = 0;
 
@@ -67,6 +64,7 @@ router.post('/upload-image', upload.single('imagen'), async (req, res) => {
 
     } catch (err) {
         console.error(err);
+        if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
         res.redirect('/dashboard');
     } finally {
         client.close();
@@ -78,7 +76,6 @@ router.post('/upload-image', upload.single('imagen'), async (req, res) => {
 ================================ */
 router.get('/images', async (req, res) => {
 
-    // Si el cache sigue vigente, devolverlo
     if (cacheImages.length > 0 && (Date.now() - lastUpdate < CACHE_TIME)) {
         return res.json(cacheImages);
     }
@@ -99,7 +96,6 @@ router.get('/images', async (req, res) => {
             .filter(f => f.name.endsWith('.jpg') || f.name.endsWith('.png'))
             .map(f => `https://gafitas.somee.com/uploads/${f.name}`);
 
-        // Guardar en cache
         cacheImages = images;
         lastUpdate = Date.now();
 
