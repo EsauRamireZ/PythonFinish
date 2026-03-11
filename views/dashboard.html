@@ -162,17 +162,25 @@ cargarCarrusel();
    SUBIR IMAGEN (FETCH)
 ========================= */
 async function subirImagen(e){
-e.preventDefault();
+    e.preventDefault();
 
-const formData = new FormData(e.target);
+    const formData = new FormData(e.target);
 
-await fetch('/upload-image',{
-method:'POST',
-body:formData
-});
+    // Mostrar feedback mientras sube
+    e.target.querySelector('button').textContent = 'Subiendo...';
+    e.target.querySelector('button').disabled = true;
 
-e.target.reset();
-cargarCarrusel();
+    await fetch('/upload-image', {
+        method: 'POST',
+        body: formData
+    });
+
+    e.target.reset();
+    e.target.querySelector('button').textContent = 'Subir Imagen';
+    e.target.querySelector('button').disabled = false;
+
+    // Recargar el carrusel con las imágenes actualizadas
+    cargarCarrusel();
 }
 
 /* =========================

@@ -1,20 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const ftp = require('basic-ftp');
-const fs = require('fs');
-const path = require('path');
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
 
-/* ================================
-   CACHE EN MEMORIA
-================================ */
-let cacheImages = [];
-let lastUpdate = 0;
-const CACHE_TIME = 60000;
+cloudinary.config({
+    cloud_name: 'dqhqrjoe6',
+    api_key: '359285996587242',
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-/* ================================
-   CONFIGURACIÓN MULTER (MEMORIA)
-================================ */
 const upload = multer({
     storage: multer.memoryStorage(),
     fileFilter: (req, file, cb) => {
@@ -26,75 +21,51 @@ const upload = multer({
     }
 });
 
-/* ================================
-   SUBIR IMAGEN
-================================ */
+let cacheImages = [];
+let lastUpdate = 0;
+const CACHE_TIME = 60000;
+
 router.post('/upload-image', upload.single('imagen'), async (req, res) => {
 
-    if (!req.file) return res.redirect('/dashboard');
-
-    const client = new ftp.Client();
-
-    const filename = Date.now() + '-' + Math.round(Math.random() * 1e9)
-                     + path.extname(req.file.originalname);
-
-    const tmpPath = `/tmp/${filename}`;
+    if (!req.file) return res.json({ ok: false, error: 'No file' });
 
     try {
-        // Guardar en /tmp (Render siempre tiene esta carpeta)
-        fs.writeFileSync(tmpPath, req.file.buffer);
-
-        await client.access({
-            host: 'gafitas.somee.com',
-            user: 'rafass',
-            password: '*5ñZskizzohp',
-            secure: false
+        await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                { folder: 'gafitas' },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            streamifier.createReadStream(req.file.buffer).pipe(stream);
         });
-
-        const remotePath = `/www.gafitas.somee.com/uploads/${filename}`;
-
-        await client.uploadFrom(tmpPath, remotePath);
-
-        fs.unlinkSync(tmpPath);
 
         cacheImages = [];
         lastUpdate = 0;
 
-        res.redirect('/dashboard');
+        res.json({ ok: true });
 
     } catch (err) {
-        console.error(err);
-        if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
-        res.redirect('/dashboard');
-    } finally {
-        client.close();
+        console.error('Error Cloudinary upload:', err);
+        res.status(500).json({ ok: false, error: err.message });
     }
 });
 
-/* ================================
-   OBTENER IMÁGENES (CON CACHE)
-================================ */
 router.get('/images', async (req, res) => {
 
     if (cacheImages.length > 0 && (Date.now() - lastUpdate < CACHE_TIME)) {
         return res.json(cacheImages);
     }
 
-    const client = new ftp.Client();
-
     try {
-        await client.access({
-            host: 'gafitas.somee.com',
-            user: 'rafass',
-            password: '*5ñZskizzohp',
-            secure: false
-        });
+        const result = await cloudinary.search
+            .expression('folder:gafitas')
+            .sort_by('created_at', 'desc')
+            .max_results(50)
+            .execute();
 
-        const files = await client.list('/www.gafitas.somee.com/uploads');
-
-        const images = files
-            .filter(f => f.name.endsWith('.jpg') || f.name.endsWith('.png'))
-            .map(f => `https://gafitas.somee.com/uploads/${f.name}`);
+        const images = result.resources.map(r => r.secure_url);
 
         cacheImages = images;
         lastUpdate = Date.now();
@@ -102,10 +73,8 @@ router.get('/images', async (req, res) => {
         res.json(images);
 
     } catch (err) {
-        console.error(err);
+        console.error('Error Cloudinary list:', err);
         res.json([]);
-    } finally {
-        client.close();
     }
 });
 
