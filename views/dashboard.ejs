@@ -3,133 +3,596 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard</title>
+  <title>Dashboard · Mi Servidor</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --blue:#1f3a5f;
-      --blue2:#2e5b88;
-      --ink:#243b53;
-      --muted:#5b6777;
-      --bg:#f4f7fb;
-      --card:#ffffff;
-      --line:#d9e2ec;
-      --soft:#f8fafc;
-      --success:#15803d;
-      --warning:#b45309;
-      --danger:#b91c1c;
-      --detail:#1d4ed8;
-      --shadow:0 14px 28px rgba(31,58,95,.10);
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0f1c2e;
+      --navy-2:    #162236;
+      --navy-3:    #1e304a;
+      --slate:     #2d4a6a;
+      --sky:       #3d7cc9;
+      --sky-light: #5b97e0;
+      --gold:      #c9a84c;
+      --gold-lt:   #e8c96a;
+      --ink:       #0f1c2e;
+      --muted:     #6b7f95;
+      --muted-lt:  #9aafca;
+      --bg:        #f0f4f9;
+      --surface:   #ffffff;
+      --surface-2: #f7fafd;
+      --border:    #dce6f0;
+      --border-2:  #c8d8ea;
+      --success:   #1a7a4a;
+      --danger:    #b91c1c;
+      --warn:      #92580a;
+      --info:      #1d4ed8;
+      --shadow-sm: 0 2px 8px rgba(15,28,46,.07);
+      --shadow-md: 0 8px 24px rgba(15,28,46,.10);
+      --shadow-lg: 0 20px 50px rgba(15,28,46,.14);
+      --radius-sm: 8px;
+      --radius:    14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+      --transition: 0.18s cubic-bezier(.4,0,.2,1);
     }
-    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
-    .app-shell{min-height:100vh}
-    .topbar{background:#fff;border-bottom:4px solid var(--blue2);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;box-shadow:0 8px 20px rgba(31,58,95,.08)}
-    .brand-left{display:flex;align-items:center;gap:12px}
-    .logo-mini{width:52px;height:52px;border-radius:14px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800}
-    .brand-copy small{display:block;color:var(--muted);font-weight:700}
-    .brand-copy h2{color:var(--blue);font-size:24px}
-    .topbar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;color:var(--blue);font-weight:700}
-    .logout-btn{border:none;text-decoration:none;background:var(--blue);color:#fff;border-radius:10px;padding:10px 16px;cursor:pointer;font-weight:700}
 
-    .main-nav{display:flex;gap:2px;background:transparent;padding:12px 24px 0;position:relative;z-index:10;flex-wrap:wrap}
-    .nav-item{position:relative}
-    .nav-link{background:var(--blue);color:#fff;border:none;padding:15px 24px;font-size:16px;cursor:pointer;border-radius:10px 10px 0 0;font-weight:700}
-    .nav-link.active,.nav-link:hover{background:var(--blue2)}
-    .dropdown-menu{display:none;position:absolute;top:100%;left:0;min-width:240px;background:#fff;border:1px solid var(--line);border-radius:0 0 12px 12px;box-shadow:var(--shadow);overflow:hidden}
-    .dropdown-link{width:100%;border:none;background:#fff;color:var(--blue);text-align:left;padding:14px 18px;cursor:pointer;font-size:15px;font-weight:600;border-bottom:1px solid #edf2f7}
-    .dropdown-link:hover,.dropdown-link.active{background:#edf2f7;color:var(--blue)}
-    .nav-item:hover .dropdown-menu{display:block}
-
-    .main-content{padding:24px}
-    .breadcrumb{margin-bottom:18px;color:var(--muted);font-size:15px;font-weight:600;background:#fff;padding:14px 18px;border-radius:16px;box-shadow:0 10px 24px rgba(31,58,95,.06)}
-    .crumb-link{
-      color:var(--blue);
-      text-decoration:none;
-      font-weight:800;
-      cursor:pointer;
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.5;
     }
-    .crumb-link:hover{
-      text-decoration:underline;
+
+    /* ── TOPBAR ──────────────────────────────── */
+    .topbar {
+      background: var(--navy);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 1px 0 rgba(255,255,255,.05), var(--shadow-lg);
     }
-    .module-card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 10px 24px rgba(31,58,95,.06);border:1px solid #e2e8f0}
-    .module-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
-    .module-header h1{color:var(--blue);margin-bottom:6px;font-size:28px}
-    .module-header p{color:var(--muted);line-height:1.6}
-    .dashboard-welcome{display:grid;grid-template-columns:1.2fr .8fr;gap:20px}
-    .hero-panel,.info-panel{background:linear-gradient(135deg,#f8fbff,#ffffff);border:1px solid #dbe7f3;border-radius:20px;padding:28px;box-shadow:0 12px 30px rgba(31,58,95,.06)}
-    .hero-panel h1{font-size:34px;color:var(--blue);margin-bottom:8px}
-    .hero-panel p,.info-panel p{color:var(--muted);line-height:1.7}
-    .welcome-name{display:inline-flex;margin-top:18px;background:#eaf2fb;color:var(--blue);padding:12px 16px;border-radius:14px;font-weight:800}
-    .info-panel h3{color:var(--blue);margin-bottom:10px}
-    .info-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
-    .info-item{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:12px 14px}
 
-    .filter-box{margin-bottom:18px;background:var(--soft);border:1px solid #e2e8f0;border-radius:16px;padding:16px}
-    .filter-grid{display:flex;align-items:end;gap:18px;flex-wrap:wrap}
-    .field{display:flex;flex-direction:column;gap:8px;min-width:220px;flex:1}
-    .field label{font-weight:700;color:var(--blue)}
-    .field input,.field select{width:100%;height:46px;border:1px solid #cbd5e0;border-radius:10px;padding:0 14px;background:#fff;color:#2d3748;outline:none}
-    .field textarea{width:100%;min-height:110px;border:1px solid #cbd5e0;border-radius:10px;padding:12px 14px;background:#fff;color:#2d3748;outline:none;resize:vertical}
-    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(46,91,136,.10)}
-    .field input[type="checkbox"]{width:18px;height:18px}
-    .field-full{grid-column:1/-1}
-    .actions-inline,.crud-actions,.modal-actions,.table-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .table-tools{margin-bottom:10px;color:var(--blue);font-weight:700}
-    .table-responsive{overflow:auto;border:1px solid #e2e8f0;border-radius:16px}
-    .data-table{width:100%;border-collapse:collapse;background:#fff}
-    .data-table thead th{background:var(--blue);color:#fff;padding:14px 12px;text-align:left;font-size:14px;white-space:nowrap}
-    .data-table tbody td{padding:13px 12px;border-bottom:1px solid #edf2f7;color:#334155;vertical-align:middle}
-    .data-table tbody tr:hover{background:#f8fbff}
-    .pagination{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:18px}
-    .pagination button{background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:700;color:var(--blue)}
-    .pagination button:disabled{opacity:.45;cursor:not-allowed}
-    .pagination button.active{background:var(--blue);border-color:var(--blue);color:#fff}
-    .btn{border:none;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
-    .btn-success{background:var(--blue);color:#fff}.btn-secondary{background:#e2e8f0;color:#334155}.btn-primary{background:var(--detail);color:#fff}.btn-danger{background:var(--danger);color:#fff}.btn-warning{background:var(--warning);color:#fff}
-    .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#eef2ff;color:#3730a3}
-    .empty{padding:24px;text-align:center;color:var(--muted)}
-    .table-image{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid #dbeafe;background:#f8fafc}
-    .form-screen{display:grid;gap:18px}
-    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-    .check-card{display:flex;align-items:center;gap:10px;padding:14px;border:1px solid #dbe4ee;border-radius:12px;background:#f8fafc;min-height:46px}
-    .detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-    .detail-box{padding:12px 14px;border:1px solid #e2e8f0;border-radius:12px;background:#fff;min-height:46px;display:flex;align-items:center;word-break:break-word}
-    .detail-image{width:120px;height:120px;border-radius:18px;object-fit:cover;border:3px solid #dbeafe;background:#f8fafc}
-    .perm-check{width:18px;height:18px;accent-color:var(--blue2);cursor:pointer}
-    .perm-save{white-space:nowrap}
+    .brand-left { display: flex; align-items: center; gap: 14px; }
 
-    .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:99}
-    .modal-box{width:min(560px,100%);background:#fff;border-radius:20px;box-shadow:0 18px 45px rgba(15,23,42,.25);overflow:hidden}
-    .modal-box.modal-sm{width:min(420px,100%)}
-    .modal-header{padding:18px 22px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;gap:10px}
-    .modal-header h2{color:var(--blue);font-size:20px}
-    .modal-close{border:none;background:#e2e8f0;width:38px;height:38px;border-radius:10px;font-weight:800;cursor:pointer}
-    .modal-body{padding:22px}
-    .modal-body p{color:var(--muted);line-height:1.7}
+    .logo-mini {
+      width: 42px; height: 42px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--sky), var(--sky-light));
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      letter-spacing: -.5px;
+      box-shadow: 0 4px 14px rgba(61,124,201,.40);
+    }
 
-    @media (max-width:900px){
-      .main-nav{padding:12px 14px 0}
-      .main-content{padding:14px}
-      .field{min-width:100%}
-      .topbar{padding:14px}
-      .brand-copy h2{font-size:20px}
-      .dashboard-welcome,.form-grid,.detail-grid{grid-template-columns:1fr}
-      .data-table{min-width:760px}
+    .brand-copy small {
+      display: block;
+      color: var(--muted-lt);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .brand-copy h2 {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -.3px;
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 999px;
+      padding: 6px 14px 6px 8px;
+    }
+
+    .user-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+      color: var(--navy);
+    }
+
+    .user-chip span { color: rgba(255,255,255,.85); font-size: 13.5px; font-weight: 500; }
+
+    .logout-btn {
+      border: none;
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.8);
+      border-radius: 999px;
+      padding: 7px 16px;
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 500;
+      font-family: inherit;
+      transition: background var(--transition), color var(--transition);
+      text-decoration: none;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
+
+    /* ── NAV ─────────────────────────────────── */
+    .main-nav {
+      background: var(--navy-2);
+      padding: 0 32px;
+      display: flex;
+      gap: 2px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+
+    .nav-item { position: relative; }
+
+    .nav-link {
+      background: transparent;
+      color: rgba(255,255,255,.60);
+      border: none;
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color var(--transition), border-color var(--transition);
+      white-space: nowrap;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: #fff;
+      border-bottom-color: var(--sky-light);
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 1px);
+      left: 0;
+      min-width: 220px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 0 var(--radius) var(--radius) var(--radius);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      z-index: 300;
+    }
+    .nav-item:hover .dropdown-menu { display: block; }
+
+    .dropdown-link {
+      width: 100%; border: none;
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition), color var(--transition), padding-left var(--transition);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dropdown-link:last-child { border-bottom: none; }
+    .dropdown-link::before {
+      content: '';
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--sky);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .dropdown-link:hover, .dropdown-link.active {
+      background: var(--surface-2);
+      color: var(--sky);
+      padding-left: 22px;
+    }
+    .dropdown-link:hover::before, .dropdown-link.active::before { opacity: 1; }
+
+    /* ── LAYOUT ──────────────────────────────── */
+    .main-content { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+    /* ── BREADCRUMB ──────────────────────────── */
+    .breadcrumb {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--muted); font-size: 13.5px; font-weight: 500;
+      margin-bottom: 22px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      width: fit-content;
+    }
+    .crumb-link {
+      color: var(--sky); font-weight: 600; cursor: pointer; text-decoration: none;
+      transition: color var(--transition);
+    }
+    .crumb-link:hover { color: var(--sky-light); }
+    .breadcrumb span { color: var(--muted); }
+    .breadcrumb-sep { color: var(--border-2); }
+
+    /* ── CARDS ───────────────────────────────── */
+    .module-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+    }
+
+    .module-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 16px; flex-wrap: wrap; margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .module-header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px; color: var(--navy);
+      letter-spacing: -.3px; margin-bottom: 4px;
+    }
+    .module-header p { color: var(--muted); font-size: 14px; }
+
+    /* ── HOME DASHBOARD ──────────────────────── */
+    .dashboard-welcome { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+
+    .hero-panel {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--slate) 100%);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+    .hero-panel::before {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(61,124,201,.30) 0%, transparent 70%);
+      top: -80px; right: -60px;
+      pointer-events: none;
+    }
+    .hero-panel::after {
+      content: '';
+      position: absolute;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,.15) 0%, transparent 70%);
+      bottom: -40px; left: 20px;
+      pointer-events: none;
+    }
+    .hero-panel h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 38px;
+      font-weight: 400;
+      color: #fff;
+      letter-spacing: -.5px;
+      margin-bottom: 12px;
+      position: relative; z-index: 1;
+    }
+    .hero-panel p {
+      color: rgba(255,255,255,.65);
+      font-size: 15px;
+      line-height: 1.7;
+      max-width: 480px;
+      position: relative; z-index: 1;
+    }
+    .welcome-name {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-top: 28px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 14px; font-weight: 600;
+      position: relative; z-index: 1;
+    }
+    .welcome-name-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold-lt);
+      box-shadow: 0 0 8px var(--gold);
+    }
+
+    .info-panel {
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+    }
+    .info-panel-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .info-panel-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, rgba(61,124,201,.12), rgba(61,124,201,.06));
+      border: 1px solid rgba(61,124,201,.20);
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .info-panel h3 {
+      color: var(--navy); font-size: 16px; font-weight: 600;
+    }
+    .info-list { display: flex; flex-direction: column; gap: 12px; }
+    .info-item {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .info-item-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .info-item-value { font-size: 14.5px; font-weight: 500; color: var(--ink); }
+
+    /* ── FILTER BOX ──────────────────────────── */
+    .filter-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+    .filter-grid { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+    .field { display: flex; flex-direction: column; gap: 6px; min-width: 200px; flex: 1; }
+    .field label { font-size: 12.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+    .field input, .field select {
+      width: 100%; height: 42px;
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      padding: 0 14px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: inherit; font-size: 14px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .field textarea {
+      width: 100%; min-height: 100px;
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      background: var(--surface); color: var(--ink);
+      font-family: inherit; font-size: 14px;
+      outline: none; resize: vertical;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: var(--sky);
+      box-shadow: 0 0 0 3px rgba(61,124,201,.12);
+    }
+    .field input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--sky); }
+    .field-full { grid-column: 1 / -1; }
+
+    /* ── TABLE ───────────────────────────────── */
+    .table-tools {
+      font-size: 12.5px; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+    .table-responsive { overflow: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+    .data-table { width: 100%; border-collapse: collapse; background: var(--surface); }
+    .data-table thead th {
+      background: var(--navy);
+      color: rgba(255,255,255,.85);
+      padding: 13px 16px;
+      text-align: left;
+      font-size: 12.5px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em;
+      white-space: nowrap;
+    }
+    .data-table thead th:first-child { border-radius: var(--radius) 0 0 0; }
+    .data-table thead th:last-child { border-radius: 0 var(--radius) 0 0; }
+    .data-table tbody td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      color: #334155; font-size: 14px;
+      vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr { transition: background var(--transition); }
+    .data-table tbody tr:hover { background: #f5f9ff; }
+
+    /* ── PAGINATION ──────────────────────────── */
+    .pagination {
+      display: flex; justify-content: center; gap: 6px;
+      flex-wrap: wrap; margin-top: 22px;
+    }
+    .pagination button {
+      background: var(--surface);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      cursor: pointer; font-weight: 600; font-size: 13.5px;
+      color: var(--slate); font-family: inherit;
+      transition: all var(--transition);
+    }
+    .pagination button:hover:not(:disabled) { background: var(--surface-2); border-color: var(--sky); color: var(--sky); }
+    .pagination button:disabled { opacity: .4; cursor: not-allowed; }
+    .pagination button.active { background: var(--sky); border-color: var(--sky); color: #fff; box-shadow: 0 4px 12px rgba(61,124,201,.35); }
+
+    /* ── BUTTONS ─────────────────────────────── */
+    .btn {
+      border: none; border-radius: var(--radius-sm);
+      padding: 9px 16px;
+      font-weight: 600; font-size: 13.5px; font-family: inherit;
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .btn-success { background: var(--sky); color: #fff; box-shadow: 0 2px 8px rgba(61,124,201,.25); }
+    .btn-success:hover { background: var(--sky-light); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(61,124,201,.35); }
+    .btn-secondary { background: var(--surface); color: var(--muted); border: 1px solid var(--border-2); }
+    .btn-secondary:hover { background: var(--surface-2); color: var(--ink); }
+    .btn-primary { background: var(--info); color: #fff; }
+    .btn-primary:hover { opacity: .88; }
+    .btn-danger { background: #fff0f0; color: var(--danger); border: 1px solid #fdd; }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+    .btn-warning { background: #fffbeb; color: var(--warn); border: 1px solid #fde68a; }
+    .btn-warning:hover { background: var(--warn); color: #fff; }
+
+    /* ── BADGE ───────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      background: rgba(61,124,201,.10); color: var(--sky);
+      border: 1px solid rgba(61,124,201,.20);
+    }
+
+    /* ── EMPTY STATE ─────────────────────────── */
+    .empty {
+      padding: 48px 24px; text-align: center; color: var(--muted);
+      font-size: 14px;
+    }
+    .empty::before { content: '⊘'; display: block; font-size: 32px; margin-bottom: 10px; opacity: .3; }
+
+    /* ── TABLE IMAGE ─────────────────────────── */
+    .table-image {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border-2);
+    }
+
+    /* ── FORM ────────────────────────────────── */
+    .form-screen { display: grid; gap: 20px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .check-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px;
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius); background: var(--surface-2);
+      cursor: pointer; transition: border-color var(--transition), background var(--transition);
+      font-size: 14px; font-weight: 500; color: var(--ink);
+    }
+    .check-card:hover { border-color: var(--sky); background: #f0f7ff; }
+
+    /* ── DETAIL ──────────────────────────────── */
+    .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .detail-box {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface-2);
+      font-size: 14px; color: var(--ink);
+      word-break: break-word; min-height: 44px;
+      display: flex; align-items: center;
+    }
+    .detail-image { width: 110px; height: 110px; border-radius: var(--radius); object-fit: cover; border: 2px solid var(--border-2); }
+
+    /* ── PERMISSIONS ─────────────────────────── */
+    .perm-check { width: 17px; height: 17px; accent-color: var(--sky); cursor: pointer; }
+    .perm-save { white-space: nowrap; }
+
+    /* ── ACTIONS ─────────────────────────────── */
+    .actions-inline, .crud-actions, .modal-actions, .table-actions {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+
+    /* ── MODALS ──────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15,28,46,.55);
+      backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      padding: 20px; z-index: 999;
+    }
+    .modal-box {
+      width: min(580px, 100%);
+      background: var(--surface);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      animation: modalIn .22s cubic-bezier(.4,0,.2,1);
+    }
+    .modal-box.modal-sm { width: min(420px, 100%); }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(16px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      background: var(--surface-2);
+    }
+    .modal-header h2 { color: var(--navy); font-size: 18px; font-weight: 600; }
+    .modal-close {
+      border: 1px solid var(--border-2);
+      background: var(--surface);
+      width: 34px; height: 34px;
+      border-radius: var(--radius-sm);
+      font-weight: 700; cursor: pointer; font-size: 14px;
+      color: var(--muted); transition: all var(--transition);
+    }
+    .modal-close:hover { background: #fff0f0; color: var(--danger); border-color: #fdd; }
+    .modal-body { padding: 24px; }
+    .modal-body p { color: var(--muted); line-height: 1.7; font-size: 14.5px; }
+
+    /* ── STATUS PILL ─────────────────────────── */
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12.5px; font-weight: 600;
+    }
+    .status-pill.active { background: #ecfdf5; color: var(--success); border: 1px solid #a7f3d0; }
+    .status-pill.inactive { background: #fff7ed; color: var(--warn); border: 1px solid #fed7aa; }
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media (max-width: 1024px) {
+      .dashboard-welcome { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .topbar { padding: 0 16px; }
+      .main-nav { padding: 0 16px; }
+      .main-content { padding: 20px 16px; }
+      .module-card { padding: 20px; }
+      .form-grid, .detail-grid { grid-template-columns: 1fr; }
+      .data-table { min-width: 720px; }
+      .hero-panel h1 { font-size: 28px; }
+      .user-chip span { display: none; }
     }
   </style>
 </head>
 <body>
   <div class="app-shell">
+
     <header class="topbar">
       <div class="brand-left">
-        <div class="logo-mini">Sys</div>
+        <div class="logo-mini">S</div>
         <div class="brand-copy">
           <small>Proyecto Final</small>
           <h2>Mi Servidor</h2>
         </div>
       </div>
       <div class="topbar-right">
-        <span><%= user.strNombreUsuario %> · <%= user.strNombrePerfil %></span>
+        <div class="user-chip">
+          <div class="user-avatar" id="topUserAvatar">U</div>
+          <span id="topUserLabel"><%= user.strNombreUsuario %> · <%= user.strNombrePerfil %></span>
+        </div>
         <a class="logout-btn" href="/logout">Cerrar sesión</a>
       </div>
     </header>
@@ -137,11 +600,14 @@
     <nav class="main-nav" id="mainNav"></nav>
 
     <main class="main-content">
-      <div id="breadcrumbs" class="breadcrumb">Inicio</div>
+      <div id="breadcrumbs" class="breadcrumb">
+        <span>Inicio</span>
+      </div>
       <div id="moduleContent"></div>
     </main>
   </div>
 
+  <!-- DETAIL MODAL -->
   <div class="modal-overlay" id="detailModalOverlay">
     <div class="modal-box">
       <div class="modal-header">
@@ -152,6 +618,7 @@
     </div>
   </div>
 
+  <!-- CONFIRM MODAL -->
   <div class="modal-overlay" id="confirmModalOverlay">
     <div class="modal-box modal-sm">
       <div class="modal-header">
@@ -160,14 +627,15 @@
       </div>
       <div class="modal-body">
         <p id="confirmModalMessage"></p>
-        <div class="modal-actions" style="justify-content:flex-end;margin-top:20px">
+        <div class="modal-actions" style="justify-content:flex-end;margin-top:22px">
           <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
-          <button type="button" class="btn btn-danger" id="confirmModalAccept">Aceptar</button>
+          <button type="button" class="btn btn-danger" id="confirmModalAccept">Eliminar</button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- STATUS MODAL -->
   <div class="modal-overlay" id="statusModalOverlay">
     <div class="modal-box modal-sm">
       <div class="modal-header">
@@ -187,33 +655,22 @@ const APP={
   user:<%- JSON.stringify(user) %>,
   catalogs:null,
   state:{
-    view:'home',
-    moduleKey:null,
-    moduleName:'',
-    menuName:'',
-    page:1,
-    search:'',
-    editingId:null,
-    permissionFilterPerfil:'',
-    permissionFilterModulo:'',
-    permissionRows:[]
+    view:'home',moduleKey:null,moduleName:'',menuName:'',
+    page:1,search:'',editingId:null,
+    permissionFilterPerfil:'',permissionFilterModulo:'',permissionRows:[]
   },
-  confirmAction:null,
-  statusTimer:null
+  confirmAction:null,statusTimer:null
 };
 
 const schemas={
   perfil:{
-    title:'Perfiles',
-    singleTitle:'Perfil',
+    title:'Perfiles',singleTitle:'Perfil',
     description:'Administración de perfiles del sistema.',
-    endpoint:'/api/perfiles',
-    search:true,
-    searchLabel:'Perfil',
-    searchPlaceholder:'Buscar perfil',
+    endpoint:'/api/perfiles',search:true,
+    searchLabel:'Perfil',searchPlaceholder:'Buscar perfil...',
     columns:[
-      {key:'strNombrePerfil',label:'Perfil'},
-      {key:'bitAdministrador',label:'Administrador',render:v=>v?'<span class="badge">Sí</span>':'No'}
+      {key:'strNombrePerfil',label:'Nombre de perfil'},
+      {key:'bitAdministrador',label:'Administrador',render:v=>v?'<span class="badge">✓ Sí</span>':'<span style="color:var(--muted)">No</span>'}
     ],
     detailLabels:{strNombrePerfil:'Perfil',bitAdministrador:'Administrador'},
     form:[
@@ -222,15 +679,12 @@ const schemas={
     ]
   },
   modulo:{
-    title:'Módulos',
-    singleTitle:'Módulo',
+    title:'Módulos',singleTitle:'Módulo',
     description:'Administración de módulos del sistema.',
-    endpoint:'/api/modulos',
-    search:true,
-    searchLabel:'Módulo',
-    searchPlaceholder:'Buscar módulo',
+    endpoint:'/api/modulos',search:true,
+    searchLabel:'Módulo',searchPlaceholder:'Buscar módulo...',
     columns:[
-      {key:'strNombreModulo',label:'Módulo'},
+      {key:'strNombreModulo',label:'Nombre de módulo'},
       {key:'strClaveModulo',label:'Clave'}
     ],
     detailLabels:{strNombreModulo:'Módulo',strClaveModulo:'Clave',strRuta:'Ruta'},
@@ -241,11 +695,9 @@ const schemas={
     ]
   },
   permisos_perfil:{
-    title:'Permisos por perfil',
-    singleTitle:'Permiso',
+    title:'Permisos por perfil',singleTitle:'Permiso',
     description:'Asignación de permisos por perfil con guardado por fila.',
-    endpoint:'/api/permisos-perfil',
-    search:false,
+    endpoint:'/api/permisos-perfil',search:false,
     columns:[
       {key:'strNombrePerfil',label:'Perfil'},
       {key:'strNombreModulo',label:'Módulo'}
@@ -257,13 +709,10 @@ const schemas={
     ]
   },
   usuario:{
-    title:'Usuarios',
-    singleTitle:'Usuario',
+    title:'Usuarios',singleTitle:'Usuario',
     description:'Administración de usuarios del sistema.',
-    endpoint:'/api/usuarios',
-    search:true,
-    searchLabel:'Usuario',
-    searchPlaceholder:'Buscar usuario o correo',
+    endpoint:'/api/usuarios',search:true,
+    searchLabel:'Usuario',searchPlaceholder:'Buscar usuario o correo...',
     columns:[
       {key:'strImagen',label:'Foto',render:v=>v?`<img class="table-image" src="${escapeAttr(v)}" alt="Foto">`:'<span class="badge">Sin foto</span>'},
       {key:'strNombreUsuario',label:'Usuario'},
@@ -285,84 +734,60 @@ const schemas={
   }
 };
 
-function escapeHtml(value){return String(value ?? '').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
-function escapeAttr(value){return escapeHtml(value);}
-function boolToText(value){return value ? 'Sí' : 'No';}
-function getPermission(){return APP.permissions[APP.state.moduleKey] || {};}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function escapeAttr(v){return escapeHtml(v);}
+function boolToText(v){return v?'Sí':'No';}
+function getPermission(){return APP.permissions[APP.state.moduleKey]||{};}
 
 function renderPagination(totalPages,currentPage,callbackName){
-  totalPages=Number(totalPages)||1;
-  currentPage=Number(currentPage)||1;
+  totalPages=Number(totalPages)||1; currentPage=Number(currentPage)||1;
   if(totalPages<=1) return '';
   let html='';
-  html+=`<button ${currentPage===1?'disabled':''} onclick="${callbackName}(${currentPage-1})">&lt;</button>`;
-  for(let i=1;i<=totalPages;i++){
-    html+=`<button class="${i===currentPage?'active':''}" onclick="${callbackName}(${i})">${i}</button>`;
-  }
-  html+=`<button ${currentPage===totalPages?'disabled':''} onclick="${callbackName}(${currentPage+1})">&gt;</button>`;
+  html+=`<button ${currentPage===1?'disabled':''} onclick="${callbackName}(${currentPage-1})">‹</button>`;
+  for(let i=1;i<=totalPages;i++) html+=`<button class="${i===currentPage?'active':''}" onclick="${callbackName}(${i})">${i}</button>`;
+  html+=`<button ${currentPage===totalPages?'disabled':''} onclick="${callbackName}(${currentPage+1})">›</button>`;
   return html;
 }
 
 async function loadAllPermissionRows(){
-  let page=1;
-  let totalPages=1;
-  let allRows=[];
+  let page=1,totalPages=1,allRows=[];
   do{
     const res=await fetch(`/api/permisos-perfil?page=${page}`);
     const json=await res.json();
-    const rows=json.data||[];
     totalPages=json.totalPages||1;
-    allRows=allRows.concat(rows);
+    allRows=allRows.concat(json.data||[]);
     page++;
   }while(page<=totalPages);
   APP.state.permissionRows=allRows;
 }
 
 function applyPermissionFilters(){
-  const perfilInput=document.getElementById('permissionFilterPerfil');
-  const moduloInput=document.getElementById('permissionFilterModulo');
-  APP.state.permissionFilterPerfil=perfilInput ? perfilInput.value.trim().toLowerCase() : '';
-  APP.state.permissionFilterModulo=moduloInput ? moduloInput.value.trim().toLowerCase() : '';
+  const pa=document.getElementById('permissionFilterPerfil');
+  const ma=document.getElementById('permissionFilterModulo');
+  APP.state.permissionFilterPerfil=pa?pa.value.trim().toLowerCase():'';
+  APP.state.permissionFilterModulo=ma?ma.value.trim().toLowerCase():'';
   APP.state.page=1;
-  renderPermissionsTable(schemas.permisos_perfil, APP.state.permissionRows || [], 1);
+  renderPermissionsTable(schemas.permisos_perfil,APP.state.permissionRows||[],1);
 }
 
 function clearPermissionFilters(){
-  APP.state.permissionFilterPerfil='';
-  APP.state.permissionFilterModulo='';
+  APP.state.permissionFilterPerfil=''; APP.state.permissionFilterModulo='';
   APP.state.page=1;
-  const perfilInput=document.getElementById('permissionFilterPerfil');
-  const moduloInput=document.getElementById('permissionFilterModulo');
-  if(perfilInput) perfilInput.value='';
-  if(moduloInput) moduloInput.value='';
-  renderPermissionsTable(schemas.permisos_perfil, APP.state.permissionRows || [], 1);
+  const pa=document.getElementById('permissionFilterPerfil');
+  const ma=document.getElementById('permissionFilterModulo');
+  if(pa) pa.value=''; if(ma) ma.value='';
+  renderPermissionsTable(schemas.permisos_perfil,APP.state.permissionRows||[],1);
 }
 
-function loadPermissionPage(page){
-  APP.state.page=page;
-  renderPermissionsTable(schemas.permisos_perfil, APP.state.permissionRows || [], 1);
-}
+function loadPermissionPage(page){APP.state.page=page; renderPermissionsTable(schemas.permisos_perfil,APP.state.permissionRows||[],1);}
 
 function setBreadcrumb(){
   const crumbs=[`<a href="javascript:void(0)" onclick="renderHome()" class="crumb-link">Inicio</a>`];
-
-  if(APP.state.menuName){
-    crumbs.push(`<span>${escapeHtml(APP.state.menuName)}</span>`);
-  }
-
-  if(APP.state.moduleName){
-    crumbs.push(`<span>${escapeHtml(APP.state.moduleName)}</span>`);
-  }
-
-  if(APP.state.view==='create'){
-    crumbs.push('<span>Agregar</span>');
-  }
-
-  if(APP.state.view==='edit'){
-    crumbs.push('<span>Editar</span>');
-  }
-
-  document.getElementById('breadcrumbs').innerHTML=crumbs.join(' &rsaquo; ');
+  if(APP.state.menuName) crumbs.push(`<span class="breadcrumb-sep">›</span><span>${escapeHtml(APP.state.menuName)}</span>`);
+  if(APP.state.moduleName) crumbs.push(`<span class="breadcrumb-sep">›</span><span>${escapeHtml(APP.state.moduleName)}</span>`);
+  if(APP.state.view==='create') crumbs.push(`<span class="breadcrumb-sep">›</span><span>Agregar</span>`);
+  if(APP.state.view==='edit') crumbs.push(`<span class="breadcrumb-sep">›</span><span>Editar</span>`);
+  document.getElementById('breadcrumbs').innerHTML=crumbs.join('');
 }
 
 function buildMenus(){
@@ -375,88 +800,89 @@ function buildMenus(){
     });
     if(!visible.length) return;
     const item=document.createElement('div'); item.className='nav-item';
-    const button=document.createElement('button'); button.className='nav-link'; button.textContent=menu.nombre; button.onclick=()=>{};
+    const button=document.createElement('button'); button.className='nav-link';
+    button.textContent=menu.nombre;
     const dropdown=document.createElement('div'); dropdown.className='dropdown-menu';
     visible.forEach(mod=>{
       const sub=document.createElement('button');
-      sub.className='dropdown-link';
-      sub.textContent=mod.nombre;
+      sub.className='dropdown-link'; sub.textContent=mod.nombre;
       sub.onclick=()=>openModule(menu.nombre,mod);
       dropdown.appendChild(sub);
     });
-    item.appendChild(button);
-    item.appendChild(dropdown);
-    nav.appendChild(item);
+    item.appendChild(button); item.appendChild(dropdown); nav.appendChild(item);
   });
 }
 
 async function boot(){
   const res=await fetch('/api/catalogos/base');
   APP.catalogs=await res.json();
-  buildMenus();
-  renderHome();
+  // Patch user avatar
+  const u=APP.user;
+  const av=document.getElementById('topUserAvatar');
+  if(av && u.strNombreUsuario) av.textContent=u.strNombreUsuario.charAt(0).toUpperCase();
+  const lbl=document.getElementById('topUserLabel');
+  if(lbl) lbl.textContent=`${u.strNombreUsuario} · ${u.strNombrePerfil}`;
+  buildMenus(); renderHome();
 }
 
 function highlightNav(){
-  document.querySelectorAll('.dropdown-link').forEach(el=>el.classList.toggle('active',el.textContent===APP.state.moduleName && APP.state.view!=='home'));
-  document.querySelectorAll('.nav-link').forEach(el=>el.classList.toggle('active',el.textContent===APP.state.menuName && APP.state.view!=='home'));
+  document.querySelectorAll('.dropdown-link').forEach(el=>el.classList.toggle('active',el.textContent===APP.state.moduleName&&APP.state.view!=='home'));
+  document.querySelectorAll('.nav-link').forEach(el=>el.classList.toggle('active',el.textContent.includes(APP.state.menuName)&&APP.state.view!=='home'));
 }
 
 function renderHome(){
-  APP.state.view='home';
-  APP.state.menuName='';
-  APP.state.moduleName='';
-  APP.state.moduleKey=null;
-  APP.state.page=1;
-  APP.state.search='';
-  APP.state.editingId=null;
-  highlightNav();
-  setBreadcrumb();
+  APP.state.view='home'; APP.state.menuName=''; APP.state.moduleName='';
+  APP.state.moduleKey=null; APP.state.page=1; APP.state.search=''; APP.state.editingId=null;
+  highlightNav(); setBreadcrumb();
+  const u=APP.user;
   document.getElementById('moduleContent').innerHTML=`
     <div class="dashboard-welcome">
       <section class="hero-panel">
-        <h1>Bienvenido</h1>
-        <p>Accediste correctamente al sistema. Desde el menú superior puedes entrar a cada módulo disponible según tu perfil.</p>
-        <div class="welcome-name">${escapeHtml(APP.user.strNombreUsuario)}</div>
+        <h1>Bienvenido de nuevo</h1>
+        <p>Accediste correctamente al sistema. Desde el menú superior puedes ingresar a cada módulo disponible según tu perfil.</p>
+        <div class="welcome-name">
+          <div class="welcome-name-dot"></div>
+          ${escapeHtml(u.strNombreUsuario)}
+        </div>
       </section>
       <aside class="info-panel">
-        <h3>Datos de acceso</h3>
-        <p>Estos son los datos de tu cuenta en el sistema.</p>
+        <div class="info-panel-header">
+          <h3>Datos de acceso</h3>
+        </div>
         <div class="info-list">
-          <div class="info-item"><strong>Perfil:</strong> ${escapeHtml(APP.user.strNombrePerfil || '')}</div>
-          <div class="info-item"><strong>Correo:</strong> ${escapeHtml(APP.user.strCorreo || '')}</div>
-          <div class="info-item"><strong>Teléfono:</strong> ${escapeHtml(APP.user.strNumeroCelular || '')}</div>
+          <div class="info-item">
+            <span class="info-item-label">Perfil</span>
+            <span class="info-item-value">${escapeHtml(u.strNombrePerfil||'')}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item-label">Correo</span>
+            <span class="info-item-value">${escapeHtml(u.strCorreo||'')}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-item-label">Teléfono</span>
+            <span class="info-item-value">${escapeHtml(u.strNumeroCelular||'')}</span>
+          </div>
         </div>
       </aside>
     </div>`;
 }
 
 function openModule(menuName,mod){
-  APP.state.menuName=menuName;
-  APP.state.moduleName=mod.nombre;
-  APP.state.moduleKey=mod.clave;
-  APP.state.page=1;
-  APP.state.search='';
-  APP.state.editingId=null;
-  APP.state.view='list';
-  highlightNav();
-  setBreadcrumb();
+  APP.state.menuName=menuName; APP.state.moduleName=mod.nombre;
+  APP.state.moduleKey=mod.clave; APP.state.page=1; APP.state.search='';
+  APP.state.editingId=null; APP.state.view='list';
+  highlightNav(); setBreadcrumb();
   if(schemas[mod.clave]?.endpoint) loadList(); else loadStatic(mod.nombre);
 }
 
 async function loadList(page=1){
-  APP.state.view='list';
-  APP.state.page=page;
-  APP.state.editingId=null;
-  setBreadcrumb();
+  APP.state.view='list'; APP.state.page=page; APP.state.editingId=null; setBreadcrumb();
   const schema=schemas[APP.state.moduleKey];
-
   if(APP.state.moduleKey==='permisos_perfil'){
     await loadAllPermissionRows();
-    renderPermissionsTable(schema, APP.state.permissionRows || [], 1);
+    renderPermissionsTable(schema,APP.state.permissionRows||[],1);
     return;
   }
-
   const q=schema.search?`?page=${page}&search=${encodeURIComponent(APP.state.search||'')}`:`?page=${page}`;
   const res=await fetch(schema.endpoint+q);
   const json=await res.json();
@@ -464,47 +890,49 @@ async function loadList(page=1){
 }
 
 function renderList(schema,rows,totalPages){
-  const p=getPermission();
   if(APP.state.moduleKey==='permisos_perfil') return renderPermissionsTable(schema,rows,totalPages);
+  const p=getPermission();
   document.getElementById('moduleContent').innerHTML=`
     <div class="module-card">
       <div class="module-header">
         <div>
-          <h1>${schema.title}</h1>
-          <p>${schema.description}</p>
+          <h1>${escapeHtml(schema.title)}</h1>
+          <p>${escapeHtml(schema.description)}</p>
         </div>
         <div class="table-actions">
           ${p.agregar?`<button class="btn btn-success" onclick="openCreateForm()">+ Agregar</button>`:''}
         </div>
       </div>
+      ${schema.search?`
       <div class="filter-box">
         <div class="filter-grid">
-          ${schema.search?`<div class="field"><label>${schema.searchLabel}</label><input id="searchBox" type="text" placeholder="${schema.searchPlaceholder}" value="${escapeHtml(APP.state.search)}"></div>`:''}
-          <div class="actions-inline">
-            ${schema.search?`<button class="btn btn-success" onclick="applySearch()">Buscar</button>`:''}
-            ${schema.search?`<button class="btn btn-secondary" onclick="clearSearch()">Limpiar</button>`:''}
+          <div class="field">
+            <label>${escapeHtml(schema.searchLabel)}</label>
+            <input id="searchBox" type="text" placeholder="${escapeHtml(schema.searchPlaceholder)}" value="${escapeHtml(APP.state.search)}">
+          </div>
+          <div class="actions-inline" style="align-self:flex-end">
+            <button class="btn btn-success" onclick="applySearch()">Buscar</button>
+            <button class="btn btn-secondary" onclick="clearSearch()">Limpiar</button>
           </div>
         </div>
-      </div>
+      </div>`:''}
       <div class="table-tools">Registros encontrados</div>
       <div class="table-responsive">
         <table class="data-table">
           <thead>
             <tr>
-              ${schema.columns.map(c=>`<th>${c.label}</th>`).join('')}
-              <th>Detalle</th>
-              <th>Editar</th>
-              <th>Eliminar</th>
+              ${schema.columns.map(c=>`<th>${escapeHtml(c.label)}</th>`).join('')}
+              <th>Detalle</th><th>Editar</th><th>Eliminar</th>
             </tr>
           </thead>
           <tbody>
-            ${rows.length ? rows.map(row=>`
+            ${rows.length?rows.map(row=>`
               <tr>
                 ${schema.columns.map(c=>`<td>${c.render?c.render(row[c.key],row):escapeHtml(row[c.key]??'')}</td>`).join('')}
                 <td>${p.detalle?`<button class="btn btn-primary" onclick="viewRecord(${row.id})">Ver</button>`:''}</td>
                 <td>${p.editar?`<button class="btn btn-warning" onclick="openEditForm(${row.id})">Editar</button>`:''}</td>
                 <td>${p.eliminar?`<button class="btn btn-danger" onclick="confirmDelete(${row.id})">Eliminar</button>`:''}</td>
-              </tr>`).join('') : `<tr><td colspan="${schema.columns.length+3}"><div class="empty">No hay registros para mostrar.</div></td></tr>`}
+              </tr>`).join(''):`<tr><td colspan="${schema.columns.length+3}"><div class="empty">No hay registros para mostrar</div></td></tr>`}
           </tbody>
         </table>
       </div>
@@ -514,71 +942,57 @@ function renderList(schema,rows,totalPages){
 
 function renderPermissionsTable(schema,rows,totalPages){
   const p=getPermission();
-
-  const perfilFilter=(APP.state.permissionFilterPerfil || '').toLowerCase();
-  const moduloFilter=(APP.state.permissionFilterModulo || '').toLowerCase();
-
+  const perfilFilter=(APP.state.permissionFilterPerfil||'').toLowerCase();
+  const moduloFilter=(APP.state.permissionFilterModulo||'').toLowerCase();
   const filteredRows=(rows||[]).filter(row=>{
-    const perfilOk=!perfilFilter || String(row.strNombrePerfil || '').toLowerCase().includes(perfilFilter);
-    const moduloOk=!moduloFilter || String(row.strNombreModulo || '').toLowerCase().includes(moduloFilter);
-    return perfilOk && moduloOk;
+    return (!perfilFilter||String(row.strNombrePerfil||'').toLowerCase().includes(perfilFilter))&&
+           (!moduloFilter||String(row.strNombreModulo||'').toLowerCase().includes(moduloFilter));
   });
-
   const pageSize=5;
-  const localTotalPages=Math.max(1, Math.ceil(filteredRows.length / pageSize));
+  const localTotalPages=Math.max(1,Math.ceil(filteredRows.length/pageSize));
   if(APP.state.page>localTotalPages) APP.state.page=localTotalPages;
-
   const start=(APP.state.page-1)*pageSize;
-  const paginatedRows=filteredRows.slice(start, start + pageSize);
+  const paginatedRows=filteredRows.slice(start,start+pageSize);
 
   document.getElementById('moduleContent').innerHTML=`
     <div class="module-card">
       <div class="module-header">
         <div>
-          <h1>${schema.title}</h1>
-          <p>${schema.description}</p>
+          <h1>${escapeHtml(schema.title)}</h1>
+          <p>${escapeHtml(schema.description)}</p>
         </div>
         <div class="table-actions">
           ${p.agregar?`<button class="btn btn-success" onclick="openCreateForm()">+ Agregar</button>`:''}
         </div>
       </div>
-
       <div class="filter-box">
         <div class="filter-grid">
           <div class="field">
             <label>Perfil</label>
-            <input id="permissionFilterPerfil" type="text" placeholder="Filtrar por perfil" value="${escapeHtml(APP.state.permissionFilterPerfil || '')}">
+            <input id="permissionFilterPerfil" type="text" placeholder="Filtrar por perfil..." value="${escapeHtml(APP.state.permissionFilterPerfil||'')}">
           </div>
           <div class="field">
             <label>Módulo</label>
-            <input id="permissionFilterModulo" type="text" placeholder="Filtrar por módulo" value="${escapeHtml(APP.state.permissionFilterModulo || '')}">
+            <input id="permissionFilterModulo" type="text" placeholder="Filtrar por módulo..." value="${escapeHtml(APP.state.permissionFilterModulo||'')}">
           </div>
-          <div class="actions-inline">
+          <div class="actions-inline" style="align-self:flex-end">
             <button class="btn btn-success" onclick="applyPermissionFilters()">Buscar</button>
             <button class="btn btn-secondary" onclick="clearPermissionFilters()">Limpiar</button>
           </div>
         </div>
       </div>
-
       <div class="table-tools">Permisos configurados</div>
       <div class="table-responsive">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Perfil</th>
-              <th>Módulo</th>
-              <th>Agregar</th>
-              <th>Editar</th>
-              <th>Consultar</th>
-              <th>Eliminar</th>
-              <th>Detalle</th>
-              <th>Guardar</th>
-              <th>Detalle</th>
-              <th>Eliminar</th>
+              <th>Perfil</th><th>Módulo</th>
+              <th>Agregar</th><th>Editar</th><th>Consultar</th><th>Eliminar</th><th>Detalle</th>
+              <th>Guardar</th><th>Ver</th><th>Eliminar</th>
             </tr>
           </thead>
           <tbody>
-            ${paginatedRows.length ? paginatedRows.map(row=>`
+            ${paginatedRows.length?paginatedRows.map(row=>`
               <tr>
                 <td>${escapeHtml(row.strNombrePerfil)}</td>
                 <td>${escapeHtml(row.strNombreModulo)}</td>
@@ -587,14 +1001,13 @@ function renderPermissionsTable(schema,rows,totalPages){
                 <td><input class="perm-check" type="checkbox" data-field="bitConsulta" ${row.bitConsulta?'checked':''}></td>
                 <td><input class="perm-check" type="checkbox" data-field="bitEliminar" ${row.bitEliminar?'checked':''}></td>
                 <td><input class="perm-check" type="checkbox" data-field="bitDetalle" ${row.bitDetalle?'checked':''}></td>
-                <td>${p.editar?`<button class="btn btn-success perm-save" onclick="savePermissionRow(this, ${row.id}, ${row.idPerfil}, ${row.idModulo})">Guardar</button>`:''}</td>
+                <td>${p.editar?`<button class="btn btn-success perm-save" onclick="savePermissionRow(this,${row.id},${row.idPerfil},${row.idModulo})">Guardar</button>`:''}</td>
                 <td>${p.detalle?`<button class="btn btn-primary" onclick="viewRecord(${row.id})">Ver</button>`:''}</td>
                 <td>${p.eliminar?`<button class="btn btn-danger" onclick="confirmDelete(${row.id})">Eliminar</button>`:''}</td>
-              </tr>`).join('') : `<tr><td colspan="10"><div class="empty">No hay registros para mostrar.</div></td></tr>`}
+              </tr>`).join(''):`<tr><td colspan="10"><div class="empty">No hay registros para mostrar</div></td></tr>`}
           </tbody>
         </table>
       </div>
-
       <div class="pagination">${renderPagination(localTotalPages,APP.state.page,'loadPermissionPage')}</div>
     </div>`;
 }
@@ -613,29 +1026,21 @@ function clearSearch(){
 }
 
 async function openCreateForm(){
-  APP.state.view='create';
-  APP.state.editingId=null;
-
-  if(APP.state.moduleKey==='usuario' || APP.state.moduleKey==='permisos_perfil'){
+  APP.state.view='create'; APP.state.editingId=null;
+  if(APP.state.moduleKey==='usuario'||APP.state.moduleKey==='permisos_perfil'){
     const catRes=await fetch('/api/catalogos/base');
     APP.catalogs=await catRes.json();
   }
-
-  setBreadcrumb();
-  renderForm();
+  setBreadcrumb(); renderForm();
 }
 
 async function openEditForm(id){
-  APP.state.view='edit';
-  APP.state.editingId=id;
-
-  if(APP.state.moduleKey==='usuario' || APP.state.moduleKey==='permisos_perfil'){
+  APP.state.view='edit'; APP.state.editingId=id;
+  if(APP.state.moduleKey==='usuario'||APP.state.moduleKey==='permisos_perfil'){
     const catRes=await fetch('/api/catalogos/base');
     APP.catalogs=await catRes.json();
   }
-
-  setBreadcrumb();
-  renderForm(await getRecord(id));
+  setBreadcrumb(); renderForm(await getRecord(id));
 }
 
 async function getRecord(id){
@@ -647,24 +1052,24 @@ async function getRecord(id){
 
 function renderForm(data={}){
   const schema=schemas[APP.state.moduleKey];
-  const title=APP.state.view==='edit' ? `Editar ${schema.singleTitle}` : `Agregar ${schema.singleTitle}`;
+  const title=APP.state.view==='edit'?`Editar ${schema.singleTitle}`:`Agregar ${schema.singleTitle}`;
   const p=getPermission();
   document.getElementById('moduleContent').innerHTML=`
     <div class="module-card form-screen">
       <div class="module-header">
         <div>
-          <h1>${title}</h1>
-          <p>Formulario independiente dentro de la misma pantalla.</p>
+          <h1>${escapeHtml(title)}</h1>
+          <p>Complete el formulario y presione Guardar para continuar.</p>
         </div>
       </div>
       <form id="entityForm">
-        <input type="hidden" name="id" value="${data.id || ''}">
+        <input type="hidden" name="id" value="${data.id||''}">
         <div class="form-grid">
           ${schema.form.map(field=>renderField(field,data,schema)).join('')}
         </div>
-        <div class="modal-actions" style="justify-content:flex-end;margin-top:22px">
-          <button type="button" class="btn btn-secondary" onclick="loadList(${APP.state.page || 1})">Cancelar</button>
-          ${(APP.state.view==='create' && p.agregar) || (APP.state.view==='edit' && p.editar) ? '<button type="submit" class="btn btn-success">Guardar</button>' : ''}
+        <div class="modal-actions" style="justify-content:flex-end;margin-top:24px">
+          <button type="button" class="btn btn-secondary" onclick="loadList(${APP.state.page||1})">Cancelar</button>
+          ${(APP.state.view==='create'&&p.agregar)||(APP.state.view==='edit'&&p.editar)?'<button type="submit" class="btn btn-success">Guardar cambios</button>':''}
         </div>
       </form>
     </div>`;
@@ -673,16 +1078,18 @@ function renderForm(data={}){
 
 function renderField(field,data,schema){
   if(field.type==='checkbox'){
-    return `<label class="check-card ${schema.title==='Permisos por perfil'?'':'field-full'}"><input type="checkbox" name="${field.name}" ${data[field.name]?'checked':''}> <span>${field.label}</span></label>`;
+    return `<label class="check-card ${schema.title==='Permisos por perfil'?'':'field-full'}">
+      <input type="checkbox" name="${field.name}" ${data[field.name]?'checked':''}>
+      <span>${escapeHtml(field.label)}</span></label>`;
   }
   if(field.type==='select'){
     const options=(APP.catalogs[field.optionsKey]||[]).map(opt=>`<option value="${opt.id}" ${String(opt.id)===String(data[field.name]||'')?'selected':''}>${escapeHtml(opt[field.textKey]||'')}</option>`).join('');
-    return `<div class="field"><label>${field.label}</label><select name="${field.name}" ${field.required?'required':''}><option value="">Seleccione...</option>${options}</select></div>`;
+    return `<div class="field"><label>${escapeHtml(field.label)}</label><select name="${field.name}" ${field.required?'required':''}><option value="">Seleccione...</option>${options}</select></div>`;
   }
   if(field.type==='file'){
-    return `<div class="field field-full"><label>${field.label}</label><input type="file" name="${field.name}" accept="${field.accept||''}">${data.strImagen?`<div style="margin-top:12px"><img src="${escapeAttr(data.strImagen)}" alt="Foto" class="detail-image"></div>`:''}</div>`;
+    return `<div class="field field-full"><label>${escapeHtml(field.label)}</label><input type="file" name="${field.name}" accept="${field.accept||''}">${data.strImagen?`<div style="margin-top:12px"><img src="${escapeAttr(data.strImagen)}" alt="Foto" class="detail-image"></div>`:''}</div>`;
   }
-  return `<div class="field"><label>${field.label}</label><input type="${field.type}" name="${field.name}" maxlength="${field.maxLength||''}" value="${escapeAttr(data[field.name]??'')}" ${field.required?'required':''}></div>`;
+  return `<div class="field"><label>${escapeHtml(field.label)}</label><input type="${field.type}" name="${field.name}" maxlength="${field.maxLength||''}" value="${escapeAttr(data[field.name]??'')}" ${field.required?'required':''}></div>`;
 }
 
 async function saveRecord(e){
@@ -692,133 +1099,244 @@ async function saveRecord(e){
   const hasFile=schema.form.some(f=>f.type==='file');
   const method=id?'PUT':'POST';
   let options={method};
-
   if(hasFile){
-    const fd=new FormData(e.target);
-    fd.delete('id');
-    schema.form.forEach(field=>{
-      if(field.type==='checkbox') fd.set(field.name, fd.get(field.name)?'true':'false');
-    });
+    const fd=new FormData(e.target); fd.delete('id');
+    schema.form.forEach(field=>{ if(field.type==='checkbox') fd.set(field.name,fd.get(field.name)?'true':'false'); });
     options.body=fd;
-  }else{
+  } else {
     const payload={};
     schema.form.forEach(field=>{
       const el=e.target.querySelector(`[name="${field.name}"]`);
       if(!el) return;
-      payload[field.name]=field.type==='checkbox' ? el.checked : el.value;
+      payload[field.name]=field.type==='checkbox'?el.checked:el.value;
     });
-
     if(APP.state.moduleKey==='permisos_perfil'){
-      payload.bitAgregar=false;
-      payload.bitEditar=false;
-      payload.bitConsulta=false;
-      payload.bitEliminar=false;
-      payload.bitDetalle=false;
+      payload.bitAgregar=false; payload.bitEditar=false;
+      payload.bitConsulta=false; payload.bitEliminar=false; payload.bitDetalle=false;
     }
     options.headers={'Content-Type':'application/json'};
     options.body=JSON.stringify(payload);
   }
-
   const res=await fetch(id?`${schema.endpoint}/${id}`:schema.endpoint,options);
   const json=await res.json();
-
-  if(!res.ok || !json.ok){
-    alert(json.message || 'No se pudo guardar');
-    return;
-  }
-
+  if(!res.ok||!json.ok){ alert(json.message||'No se pudo guardar'); return; }
   if(APP.state.moduleKey==='perfil'){
     const catRes=await fetch('/api/catalogos/base');
     APP.catalogs=await catRes.json();
   }
-
-  showStatusModal('Acción realizada', id ? 'El registro se guardó correctamente.' : 'El registro se agregó correctamente.');
-  loadList(id ? APP.state.page : 1);
+  showStatusModal('¡Guardado!',id?'El registro se actualizó correctamente.':'El registro se creó correctamente.');
+  loadList(id?APP.state.page:1);
 }
 
-async function savePermissionRow(button, rowId, idPerfil, idModulo){
+async function savePermissionRow(button,rowId,idPerfil,idModulo){
   const tr=button.closest('tr');
   const payload={
-    idPerfil,
-    idModulo,
-    bitAgregar: tr.querySelector('[data-field="bitAgregar"]').checked,
-    bitEditar: tr.querySelector('[data-field="bitEditar"]').checked,
-    bitConsulta: tr.querySelector('[data-field="bitConsulta"]').checked,
-    bitEliminar: tr.querySelector('[data-field="bitEliminar"]').checked,
-    bitDetalle: tr.querySelector('[data-field="bitDetalle"]').checked
+    idPerfil,idModulo,
+    bitAgregar:tr.querySelector('[data-field="bitAgregar"]').checked,
+    bitEditar:tr.querySelector('[data-field="bitEditar"]').checked,
+    bitConsulta:tr.querySelector('[data-field="bitConsulta"]').checked,
+    bitEliminar:tr.querySelector('[data-field="bitEliminar"]').checked,
+    bitDetalle:tr.querySelector('[data-field="bitDetalle"]').checked
   };
-  const res=await fetch(`/api/permisos-perfil/${rowId}`,{
-    method:'PUT',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
-  });
+  const res=await fetch(`/api/permisos-perfil/${rowId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   const json=await res.json();
-  if(!res.ok || !json.ok){
-    alert(json.message || 'No se pudo guardar');
-    return;
-  }
-  showStatusModal('Acción realizada','Los permisos se guardaron correctamente.');
+  if(!res.ok||!json.ok){ alert(json.message||'No se pudo guardar'); return; }
+  showStatusModal('¡Guardado!','Los permisos se actualizaron correctamente.');
 }
 
 function normalizeDetailValue(key,value){
-  if(key==='bitAdministrador' || key.startsWith('bit')) return boolToText(!!value);
-  if(key==='strImagen') return value ? `<img src="${escapeAttr(value)}" alt="Imagen" class="detail-image">` : 'Sin foto';
-  if(key==='idPerfil'){
-    const item=(APP.catalogs.perfiles||[]).find(x=>String(x.id)===String(value));
-    return escapeHtml(item?.strNombrePerfil || value || '');
-  }
-  if(key==='idEstadoUsuario'){
-    const item=(APP.catalogs.estados||[]).find(x=>String(x.id)===String(value));
-    return escapeHtml(item?.strNombreEstado || value || '');
-  }
-  return escapeHtml(value ?? '');
+  if(key==='bitAdministrador'||key.startsWith('bit')) return boolToText(!!value);
+  if(key==='strImagen') return value?`<img src="${escapeAttr(value)}" alt="Imagen" class="detail-image">`:'Sin foto';
+  if(key==='idPerfil'){ const item=(APP.catalogs.perfiles||[]).find(x=>String(x.id)===String(value)); return escapeHtml(item?.strNombrePerfil||value||''); }
+  if(key==='idEstadoUsuario'){ const item=(APP.catalogs.estados||[]).find(x=>String(x.id)===String(value)); return escapeHtml(item?.strNombreEstado||value||''); }
+  return escapeHtml(value??'');
 }
 
 async function viewRecord(id){
   const schema=schemas[APP.state.moduleKey];
   const data=await getRecord(id);
-  const keys=Object.keys(data).filter(k=>k!=='id');
-  const html=`<div class="detail-grid">${keys.map(key=>`<div class="field ${key==='strImagen'?'field-full':''}"><label>${escapeHtml(schema.detailLabels?.[key] || key)}</label><div class="detail-box">${normalizeDetailValue(key,data[key])}</div></div>`).join('')}</div><div class="modal-actions" style="justify-content:flex-end;margin-top:20px"><button type="button" class="btn btn-primary" onclick="closeDetailModal()">Cerrar</button></div>`;
+  const hiddenKeys=APP.state.moduleKey==='permisos_perfil'?['idPerfil','idModulo']:[];
+  const keys=Object.keys(data).filter(k=>k!=='id'&&!hiddenKeys.includes(k));
+  const html=`
+    <div class="detail-grid">
+      ${keys.map(key=>`
+        <div class="field ${key==='strImagen'?'field-full':''}">
+          <label>${escapeHtml(schema.detailLabels?.[key]||key)}</label>
+          <div class="detail-box">${normalizeDetailValue(key,data[key])}</div>
+        </div>`).join('')}
+    </div>
+    <div class="modal-actions" style="justify-content:flex-end;margin-top:22px">
+      <button type="button" class="btn btn-secondary" onclick="closeDetailModal()">Cerrar</button>
+    </div>`;
   openDetailModal(`Detalle de ${schema.singleTitle}`,html);
 }
 
 function confirmDelete(id){
-  openConfirmModal('Confirmar eliminación','¿Estás seguro de eliminar este registro?',async ()=>{
+  openConfirmModal('Confirmar eliminación','¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.',async()=>{
     const schema=schemas[APP.state.moduleKey];
     const res=await fetch(`${schema.endpoint}/${id}`,{method:'DELETE'});
     const json=await res.json();
-    if(!res.ok || !json.ok){
-      alert(json.message || 'No se pudo eliminar');
-      return;
-    }
+    if(!res.ok||!json.ok){ alert(json.message||'No se pudo eliminar'); return; }
     closeConfirmModal();
-    showStatusModal('Acción realizada','El registro se eliminó correctamente.');
+    showStatusModal('Eliminado','El registro se eliminó correctamente.');
     loadList(APP.state.page);
   });
 }
 
+const staticData={
+  principal1:{
+    title:'Principal 1',
+    description:'Catálogo de productos registrados en el sistema.',
+    columns:['#','Nombre','Categoría','Precio','Stock','Estado'],
+    rows:[
+      [1,'Monitor LG UltraWide 34"','Electrónica','$8,499','12','Activo'],
+      [2,'Teclado Mecánico Corsair K95','Periféricos','$3,200','27','Activo'],
+      [3,'Mouse Logitech MX Master 3','Periféricos','$1,850','34','Activo'],
+      [4,'Silla Ergonómica Herman Miller','Mobiliario','$24,000','5','Activo'],
+      [5,'Laptop Dell XPS 15','Computadoras','$42,500','8','Activo'],
+      [6,'Auriculares Sony WH-1000XM5','Audio','$7,300','19','Activo'],
+      [7,'Webcam Logitech C920','Periféricos','$1,490','41','Inactivo'],
+      [8,'Disco SSD Samsung 1TB','Almacenamiento','$2,100','53','Activo'],
+      [9,'Hub USB-C Anker 7-en-1','Accesorios','$890','68','Activo'],
+      [10,'Impresora HP LaserJet Pro','Impresión','$5,600','6','Inactivo'],
+      [11,'Router ASUS AX6000','Redes','$4,750','14','Activo'],
+      [12,'Tableta Wacom Intuos','Diseño','$3,900','9','Activo'],
+    ]
+  },
+  principal2:{
+    title:'Principal 2',
+    description:'Registro de proveedores y contactos del sistema.',
+    columns:['#','Proveedor','Contacto','Correo','Teléfono','Ciudad'],
+    rows:[
+      [1,'TechSupply MX','Carlos Ramírez','c.ramirez@techsupply.mx','55 1234 5678','Ciudad de México'],
+      [2,'Distribuidora Norte','Ana Flores','a.flores@distnorte.com','81 9876 5432','Monterrey'],
+      [3,'GlobalTech SA','Miguel Torres','m.torres@globaltech.com','33 4567 8901','Guadalajara'],
+      [4,'OfficeWorld','Laura Sánchez','l.sanchez@officeworld.mx','55 2345 6789','Ciudad de México'],
+      [5,'Electro Mayoreo','Pedro López','p.lopez@electromayoreo.com','81 3456 7890','Monterrey'],
+      [6,'CompuServicios','Isabel Vega','i.vega@compuservicios.mx','33 5678 9012','Guadalajara'],
+      [7,'InnovateTech','Roberto Díaz','r.diaz@innovatetech.com','55 6789 0123','Ciudad de México'],
+      [8,'MegaStore Digital','Patricia Mora','p.mora@megastore.mx','664 7890 1234','Tijuana'],
+      [9,'SurTech Puebla','Andrés Cruz','a.cruz@surtech.mx','222 8901 2345','Puebla'],
+      [10,'ProEquipos Leon','Sandra Reyes','s.reyes@proequipos.com','477 9012 3456','León'],
+    ]
+  }
+};
+
+const staticState={search:'',page:1,pageSize:5};
+
+function renderStaticTable(key){
+  const data=staticData[key];
+  if(!data){ renderHome(); return; }
+
+  const query=staticState.search.toLowerCase();
+  const filtered=data.rows.filter(row=>
+    row.some(cell=>String(cell).toLowerCase().includes(query))
+  );
+
+  const totalPages=Math.max(1,Math.ceil(filtered.length/staticState.pageSize));
+  if(staticState.page>totalPages) staticState.page=totalPages;
+  const start=(staticState.page-1)*staticState.pageSize;
+  const paged=filtered.slice(start,start+staticState.pageSize);
+
+  const pageButtons=()=>{
+    if(totalPages<=1) return '';
+    let b=`<button ${staticState.page===1?'disabled':''} onclick="staticChangePage(${staticState.page-1},'${key}')">‹</button>`;
+    for(let i=1;i<=totalPages;i++) b+=`<button class="${i===staticState.page?'active':''}" onclick="staticChangePage(${i},'${key}')">${i}</button>`;
+    b+=`<button ${staticState.page===totalPages?'disabled':''} onclick="staticChangePage(${staticState.page+1},'${key}')">›</button>`;
+    return b;
+  };
+
+  document.getElementById('moduleContent').innerHTML=`
+    <div class="module-card">
+      <div class="module-header">
+        <div>
+          <h1>${escapeHtml(data.title)}</h1>
+          <p>${escapeHtml(data.description)}</p>
+        </div>
+        <div class="table-actions">
+          <button class="btn btn-success">+ Agregar</button>
+        </div>
+      </div>
+      <div class="filter-box">
+        <div class="filter-grid">
+          <div class="field">
+            <label>Buscar</label>
+            <input id="staticSearchBox" type="text" placeholder="Buscar en la tabla..." value="${escapeHtml(staticState.search)}">
+          </div>
+          <div class="actions-inline" style="align-self:flex-end">
+            <button class="btn btn-success" onclick="staticApplySearch('${key}')">Buscar</button>
+            <button class="btn btn-secondary" onclick="staticClearSearch('${key}')">Limpiar</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-tools">Mostrando ${filtered.length} registro${filtered.length!==1?'s':''}</div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              ${data.columns.map(c=>`<th>${escapeHtml(c)}</th>`).join('')}
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${paged.length?paged.map(row=>`
+              <tr>
+                ${row.map(cell=>`<td>${escapeHtml(String(cell))}</td>`).join('')}
+                <td>
+                  <div class="actions-inline">
+                    <button class="btn btn-warning" style="padding:7px 12px">Editar</button>
+                    <button class="btn btn-danger" style="padding:7px 12px">Eliminar</button>
+                  </div>
+                </td>
+              </tr>`).join(''):`<tr><td colspan="${data.columns.length+1}"><div class="empty">No hay registros para mostrar</div></td></tr>`}
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">${pageButtons()}</div>
+    </div>`;
+}
+
+function staticApplySearch(key){
+  const input=document.getElementById('staticSearchBox');
+  staticState.search=input?input.value.trim():'';
+  staticState.page=1;
+  renderStaticTable(key);
+}
+
+function staticClearSearch(key){
+  staticState.search=''; staticState.page=1;
+  const input=document.getElementById('staticSearchBox');
+  if(input) input.value='';
+  renderStaticTable(key);
+}
+
+function staticChangePage(page,key){
+  staticState.page=page;
+  renderStaticTable(key);
+}
+
 async function loadStatic(moduleName){
-  const res=await fetch(`/api/static/${APP.state.moduleKey}`);
+  staticState.search=''; staticState.page=1;
+  const key=APP.state.moduleKey;
+  if(staticData[key]){ renderStaticTable(key); return; }
+
+  // fallback original
+  const res=await fetch(`/api/static/${key}`);
   const json=await res.json();
   const a=json.actions||{};
   document.getElementById('moduleContent').innerHTML=`
     <div class="module-card">
       <div class="module-header">
-        <div>
-          <h1>${moduleName}</h1>
-          <p>Módulo estático del sistema.</p>
-        </div>
+        <div><h1>${escapeHtml(moduleName)}</h1><p>Módulo del sistema.</p></div>
       </div>
       <div class="crud-actions">
-        ${a.agregar?'<button class="btn btn-success">Agregar</button>':''}
+        ${a.agregar?'<button class="btn btn-success">+ Agregar</button>':''}
         ${a.editar?'<button class="btn btn-warning">Editar</button>':''}
         ${a.eliminar?'<button class="btn btn-danger">Eliminar</button>':''}
         ${a.consulta?'<button class="btn btn-secondary">Consultar</button>':''}
         ${a.detalle?'<button class="btn btn-primary">Detalle</button>':''}
       </div>
-      <div class="filter-box" style="margin-top:18px">
-        <p>Esta pantalla solo muestra los botones permitidos por el perfil.</p>
-      </div>
+      <div class="filter-box" style="margin-top:18px"><p>Esta pantalla muestra los botones permitidos para tu perfil.</p></div>
     </div>`;
 }
 
@@ -827,45 +1345,30 @@ function openDetailModal(title,html){
   document.getElementById('detailModalBody').innerHTML=html;
   document.getElementById('detailModalOverlay').style.display='flex';
 }
-
 function closeDetailModal(){
   document.getElementById('detailModalOverlay').style.display='none';
   document.getElementById('detailModalBody').innerHTML='';
 }
-
 function openConfirmModal(title,message,onAccept){
   document.getElementById('confirmModalTitle').textContent=title;
   document.getElementById('confirmModalMessage').textContent=message;
   APP.confirmAction=onAccept;
   document.getElementById('confirmModalOverlay').style.display='flex';
 }
-
 function closeConfirmModal(){
   document.getElementById('confirmModalOverlay').style.display='none';
   APP.confirmAction=null;
 }
-
-document.getElementById('confirmModalAccept').addEventListener('click',()=>{
-  if(APP.confirmAction) APP.confirmAction();
-});
-
+document.getElementById('confirmModalAccept').addEventListener('click',()=>{if(APP.confirmAction)APP.confirmAction();});
 function showStatusModal(title,message){
   document.getElementById('statusModalTitle').textContent=title;
   document.getElementById('statusModalMessage').textContent=message;
   document.getElementById('statusModalOverlay').style.display='flex';
   clearTimeout(APP.statusTimer);
-  APP.statusTimer=setTimeout(closeStatusModal,1700);
+  APP.statusTimer=setTimeout(closeStatusModal,2000);
 }
-
-function closeStatusModal(){
-  document.getElementById('statusModalOverlay').style.display='none';
-}
-
-document.querySelectorAll('.modal-overlay').forEach(overlay=>
-  overlay.addEventListener('click',e=>{
-    if(e.target===overlay) overlay.style.display='none';
-  })
-);
+function closeStatusModal(){document.getElementById('statusModalOverlay').style.display='none';}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.style.display='none';}));
 
 boot();
 </script>
