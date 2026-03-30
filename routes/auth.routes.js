@@ -2,133 +2,122 @@ const express = require('express');
 const router = express.Router();
 const { sql, pool } = require('../config/db');
 const axios = require('axios');
+const { signToken, requireAuth, loadPermissions } = require('../middleware/auth');
 
-// home para login
+const RECAPTCHA_SECRET = '6LebTlYsAAAAAD0Q3XM3e6ah7CctvUEK4OEclWDR';
+const RECAPTCHA_SITE = '6LebTlYsAAAAADnLSamRI9p-VJYYovtlyxHeRD-8';
+
 router.get('/', (req, res) => {
-    res.sendFile('home.html', { root: 'views' });
-});
-
-// formulario registro
-router.get('/formulario', (req, res) => {
-    res.sendFile('formulario.html', { root: 'views' });
-});
-
-// registro
-router.post('/registro', async (req, res) => {
-    const { nombre, apPaterno, apMaterno, correo, contrasenia } = req.body;
-
-    try {
-        const connection = await pool;
-
-        const result = await connection.request()
-            .input('nombre', sql.VarChar(15), nombre)
-            .input('apPaterno', sql.VarChar(15), apPaterno)
-            .input('apMaterno', sql.VarChar(15), apMaterno)
-            .input('correo', sql.VarChar(45), correo)
-            .input('contrasenia', sql.VarChar(30), contrasenia)
-            .query(`
-                INSERT INTO registro (nombre, apPaterno, apMaterno, correo, contrasenia)
-                OUTPUT INSERTED.id
-                VALUES (@nombre, @apPaterno, @apMaterno, @correo, @contrasenia)
-            `);
-
-        const idRegistro = result.recordset[0].id;
-
-        await connection.request()
-            .input('id', sql.Int, idRegistro)
-            .input('correo', sql.VarChar, correo)
-            .input('contrasenia', sql.VarChar, contrasenia)
-            .query(`
-                INSERT INTO usuario (id, correo, contrasenia)
-                VALUES (@id, @correo, @contrasenia)
-            `);
-
-        res.redirect('/');
-
-    } catch (err) {
-        console.error(err);
-        res.redirect('/?error=Error al registrar usuario');
-    }
+  res.render('login', { error: req.query.error || '', siteKey: RECAPTCHA_SITE });
 });
 
 router.post('/login', async (req, res) => {
-    const { correo, contrasenia, 'g-recaptcha-response': captcha } = req.body;
+  const { usuario, password, 'g-recaptcha-response': captcha } = req.body;
+  try {
+    if (!captcha) return res.redirect('/?error=Verifica el reCAPTCHA');
 
-    if (!captcha) {
-        return res.redirect('/?error=Verifica el reCAPTCHA');
+    const captchaResponse = await axios.post(
+      'https://www.google.com/recaptcha/api/siteverify',
+      null,
+      { params: { secret: RECAPTCHA_SECRET, response: captcha } }
+    );
+
+    if (!captchaResponse.data.success) {
+      return res.redirect('/?error=Captcha inválido');
     }
 
-    try {
-        // validar reCAPTCHA
-        const secretKey = '6LebTlYsAAAAAD0Q3XM3e6ah7CctvUEK4OEclWDR';
+    const connection = await pool;
+    const result = await connection.request()
+      .input('usuario', sql.VarChar(80), usuario)
+      .query(`
+        SELECT TOP 1
+          u.id AS idUsuario,
+          u.strNombreUsuario,
+          u.strPwd,
+          u.idPerfil,
+          u.idEstadoUsuario,
+          u.strCorreo,
+          p.bitAdministrador,
+          eu.strNombreEstado
+        FROM Usuario u
+        INNER JOIN Perfil p ON p.id = u.idPerfil
+        INNER JOIN EstadoUsuario eu ON eu.id = u.idEstadoUsuario
+        WHERE u.strNombreUsuario = @usuario OR u.strCorreo = @usuario
+      `);
 
-        const captchaResponse = await axios.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            null,
-            { params: { secret: secretKey, response: captcha } }
-        );
+    if (!result.recordset.length) return res.redirect('/?error=Usuario o contraseña incorrectos');
 
-        if (!captchaResponse.data.success) {
-            return res.redirect('/?error=reCAPTCHA inválido');
-        }
+    const user = result.recordset[0];
+    if (user.strPwd !== password) return res.redirect('/?error=Usuario o contraseña incorrectos');
+    if (user.idEstadoUsuario !== 1) return res.redirect('/?error=El usuario no existe o está inactivo');
 
-        const connection = await pool;
-
-        // verificar si el correo existe
-        const correoExiste = await connection.request()
-            .input('correo', sql.VarChar, correo)
-            .query(`
-                SELECT id, contrasenia
-                FROM usuario
-                WHERE correo = @correo
-            `);
-
-        // Correo NO existe
-        if (correoExiste.recordset.length === 0) {
-            return res.redirect('/?error=Correo y contraseña incorrectos');
-        }
-
-        const usuarioDB = correoExiste.recordset[0];
-
-        // Contraseña incorrecta
-        if (usuarioDB.contrasenia !== contrasenia) {
-            return res.redirect('/?error=Contraseña incorrecta');
-        }
-
-        // Login exitoso, crear sesión
-        const usuario = await connection.request()
-            .input('id', sql.Int, usuarioDB.id)
-            .query(`
-                SELECT id, nombre
-                FROM registro
-                WHERE id = @id
-            `);
-
-        req.session.usuario = usuario.recordset[0];
-        res.redirect('/dashboard');
-
-    } catch (err) {
-        console.error(err);
-        res.redirect('/?error=Error interno, intenta más tarde');
-    }
+    const token = signToken(user);
+    res.cookie('token', token, { httpOnly: true, sameSite: 'lax' });
+    res.redirect('/dashboard');
+  } catch (error) {
+    console.error(error);
+    res.redirect('/?error=Error interno al iniciar sesión');
+  }
 });
 
+router.get('/dashboard', requireAuth, loadPermissions, async (req, res, next) => {
+  try {
+    const connection = await pool;
+    const menusResult = await connection.request()
+      .input('idPerfil', sql.Int, req.user.idPerfil)
+      .query(`
+        SELECT
+          mn.id AS idMenu,
+          mn.strNombreMenu,
+          mn.intOrdenMenu,
+          m.id AS idModulo,
+          m.strNombreModulo,
+          m.strClaveModulo,
+          m.strRuta,
+          ISNULL(pp.bitAgregar, 0) AS bitAgregar,
+          ISNULL(pp.bitEditar, 0) AS bitEditar,
+          ISNULL(pp.bitConsulta, 0) AS bitConsulta,
+          ISNULL(pp.bitEliminar, 0) AS bitEliminar,
+          ISNULL(pp.bitDetalle, 0) AS bitDetalle
+        FROM Menu mn
+        INNER JOIN MenuModulo mm ON mm.idMenu = mn.id
+        INNER JOIN Modulo m ON m.id = mm.idModulo
+        LEFT JOIN PermisosPerfil pp
+          ON pp.idModulo = m.id AND pp.idPerfil = @idPerfil
+        ORDER BY mn.intOrdenMenu, m.id
+      `);
 
-// Pagina principal del dashboard
-router.get('/dashboard', auth, (req, res) => {
-    res.sendFile('dashboard.html', { root: 'views' });
+    const visibleMenus = [];
+    const map = new Map();
+
+    menusResult.recordset.forEach((row) => {
+      const allowed = !!(row.bitAgregar || row.bitEditar || row.bitConsulta || row.bitEliminar || row.bitDetalle);
+      if (!map.has(row.idMenu)) map.set(row.idMenu, { id: row.idMenu, nombre: row.strNombreMenu, modulos: [] });
+      if (allowed) {
+        map.get(row.idMenu).modulos.push({ id: row.idModulo, nombre: row.strNombreModulo, clave: row.strClaveModulo, ruta: row.strRuta });
+      }
+    });
+
+    map.forEach((menu) => { if (menu.modulos.length > 0) visibleMenus.push(menu); });
+
+    const userResult = await connection.request()
+      .input('idUsuario', sql.Int, req.user.idUsuario)
+      .query(`
+        SELECT u.id, u.strNombreUsuario, u.strCorreo, u.strNumeroCelular, u.strImagen, p.strNombrePerfil
+        FROM Usuario u
+        INNER JOIN Perfil p ON p.id = u.idPerfil
+        WHERE u.id = @idUsuario
+      `);
+
+    res.render('dashboard', { user: userResult.recordset[0], menus: visibleMenus, permissions: req.permissions });
+  } catch (error) {
+    next(error);
+  }
 });
 
-// Cerrar sesión
 router.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
+  res.clearCookie('token');
+  res.redirect('/');
 });
-
-// Autenticación de middleware
-function auth(req, res, next) {
-    if (!req.session.usuario) return res.redirect('/');
-    next();
-}
 
 module.exports = router;

@@ -1,32 +1,31 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const session = require('express-session');
-
+const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Motor de vistas
 app.set('view engine', 'ejs');
-app.set('views', ',/views');
+app.set('views', path.join(__dirname, 'views'));
 
-// middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static('views'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({
-    secret: 'mi-secreto',
-    resave: false,
-    saveUninitialized: true
-}));
-
-// rutas
 app.use('/', require('./routes/auth.routes'));
 app.use('/', require('./routes/ftp.routes'));
 app.use('/', require('./routes/crud.routes'));
 
-// server
+app.use((req, res) => {
+  res.status(404).render('error', { code: 404, message: 'La página solicitada no existe.' });
+});
+
+app.use((err, req, res, _next) => {
+  console.error(err);
+  res.status(500).render('error', { code: 500, message: err.message || 'Ocurrió un error inesperado.' });
+});
+
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
