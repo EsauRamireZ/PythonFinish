@@ -20,7 +20,7 @@
       --gold:      #22c55e;      /* verde neón */
       --gold-lt:   #4ade80;
 
-      --ink:       #0f0f1a;
+      --ink:       #22c55e;
 
       --muted:     #6b7280;
       --muted-lt:  #9ca3af;
@@ -252,7 +252,7 @@
     }
     .module-header h1 {
       font-family: 'DM Serif Display', serif;
-      font-size: 26px; color: var(--navy);
+      font-size: 26px; color: var(--success);
       letter-spacing: -.3px; margin-bottom: 4px;
     }
     .module-header p { color: var(--muted); font-size: 14px; }
@@ -585,6 +585,58 @@
       .hero-panel h1 { font-size: 28px; }
       .user-chip span { display: none; }
     }
+    /* ── LAYOUT SIDEBAR ───────────────────────── */
+.layout {
+  display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  min-height: calc(100vh - 68px);
+  background: var(--navy-2);
+  border-right: 1px solid rgba(255,255,255,.05);
+  padding-top: 10px;
+}
+
+/* MENÚ */
+.sidebar .nav-item {
+  width: 100%;
+}
+
+.sidebar .nav-link {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+/* ACTIVO */
+.sidebar .nav-link.active {
+  background: rgba(124,58,237,.2);
+  border-left: 4px solid var(--sky);
+}
+
+/* DROPDOWN como lista */
+.sidebar .dropdown-menu {
+  position: static;
+  display: block;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* SUBMENÚ */
+.sidebar .dropdown-link {
+  padding-left: 30px;
+  background: transparent;
+  color: rgba(255,255,255,.7);
+}
+
+.sidebar .dropdown-link:hover {
+  background: rgba(255,255,255,.05);
+  color: #fff;
+}
   </style>
 </head>
 <body>
@@ -592,9 +644,9 @@
 
     <header class="topbar">
       <div class="brand-left">
-        <div class="logo-mini">S</div>
+        <div class="logo-mini">P</div>
         <div class="brand-copy">
-          <small>Proyecto Final</small>
+          <small>Proyecto Ejecutivo</small>
           <h2>Mi Proyecto</h2>
         </div>
       </div>
@@ -607,14 +659,16 @@
       </div>
     </header>
 
-    <nav class="main-nav" id="mainNav"></nav>
+    <div class="layout">
+  <aside class="sidebar" id="mainNav"></aside>
 
-    <main class="main-content">
-      <div id="breadcrumbs" class="breadcrumb">
-        <span>Inicio</span>
-      </div>
-      <div id="moduleContent"></div>
-    </main>
+  <main class="main-content">
+    <div id="breadcrumbs" class="breadcrumb">
+      <span>Inicio</span>
+    </div>
+    <div id="moduleContent"></div>
+  </main>
+</div>
   </div>
 
   <!-- DETAIL MODAL -->
@@ -886,7 +940,7 @@ function renderHome(){
     <div class="dashboard-welcome">
       <section class="hero-panel">
         <h1>Bienvenido de nuevo</h1>
-        <p>Accediste correctamente al sistema. Desde el menú superior puedes ingresar a cada módulo disponible según tu perfil.</p>
+        <p>Has entrado de forma correcta. Ahora puedes disponer de los modulos dependiendo de los permisos de tu perfil.</p>
         <div class="welcome-name">
           <div class="welcome-name-dot"></div>
           ${escapeHtml(u.strNombreUsuario)}
@@ -937,7 +991,7 @@ function renderStaticModule(){
       </div>
 
       <div class="detail-box" style="line-height:1.8;min-height:74px;align-items:flex-start;padding-top:18px;">
-        Esta pantalla muestra únicamente los botones permitidos para tu perfil.
+        Aqui solo se muestran los botenes permitidos.
       </div>
     </div>`;
 }
