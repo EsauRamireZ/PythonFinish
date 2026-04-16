@@ -21,5 +21,18 @@
     "mysql2": "^3.16.1",
     "streamifier": "^0.1.1",
     "validator": "^13.15.26"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gafass/Express-Render.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Gafass/Express-Render/issues"
+  },
+  "homepage": "https://github.com/Gafass/Express-Render#readme",
+  "description": ""
 }

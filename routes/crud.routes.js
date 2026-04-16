@@ -47,6 +47,8 @@ router.get('/api/static/:moduleKey', (req, res) => {
 });
 
 function boolBody(v) { return v === true || v === 'true' || v === 1 || v === '1' || v === 'on'; }
+function onlyDigits(value = '') { return String(value || '').replace(/\D/g, ''); }
+function isValidPhone(value = '') { return /^\d{10}$/.test(onlyDigits(value)); }
 
 router.get('/api/perfiles', requireModuleAccess('perfil', 'consulta'), async (req, res, next) => {
   try {
@@ -81,7 +83,47 @@ router.delete('/api/modulos/:id', requireModuleAccess('modulo', 'eliminar'), asy
 router.get('/api/permisos-perfil', requireModuleAccess('permisos_perfil', 'consulta'), async (req, res, next) => {
   try {
     const page = parseInt(req.query.page || '1', 10);
-    const limit = 5; const offset = (page - 1) * limit; const connection = await pool;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+    const idPerfil = parseInt(req.query.idPerfil || '0', 10);
+    const connection = await pool;
+
+    if (idPerfil > 0) {
+      const totalResult = await connection.request()
+        .query('SELECT COUNT(*) AS total FROM Modulo');
+
+      const result = await connection.request()
+        .input('idPerfil', sql.Int, idPerfil)
+        .query(`
+          SELECT
+            ISNULL(pp.id, 0) AS id,
+            m.id AS idModulo,
+            @idPerfil AS idPerfil,
+            ISNULL(pp.bitAgregar, 0) AS bitAgregar,
+            ISNULL(pp.bitEditar, 0) AS bitEditar,
+            ISNULL(pp.bitConsulta, 0) AS bitConsulta,
+            ISNULL(pp.bitEliminar, 0) AS bitEliminar,
+            ISNULL(pp.bitDetalle, 0) AS bitDetalle,
+            p.strNombrePerfil,
+            m.strNombreModulo
+          FROM Modulo m
+          CROSS JOIN Perfil p
+          LEFT JOIN PermisosPerfil pp
+            ON pp.idModulo = m.id
+           AND pp.idPerfil = p.id
+          WHERE p.id = @idPerfil
+          ORDER BY m.id
+          OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY
+        `);
+
+      return res.json({
+        ok: true,
+        data: result.recordset,
+        page,
+        totalPages: Math.ceil(totalResult.recordset[0].total / limit) || 1
+      });
+    }
+
     const totalResult = await connection.request().query('SELECT COUNT(*) AS total FROM PermisosPerfil');
     const result = await connection.request().query(`SELECT pp.id, pp.idModulo, pp.idPerfil, pp.bitAgregar, pp.bitEditar, pp.bitConsulta, pp.bitEliminar, pp.bitDetalle, p.strNombrePerfil, m.strNombreModulo FROM PermisosPerfil pp INNER JOIN Perfil p ON p.id = pp.idPerfil INNER JOIN Modulo m ON m.id = pp.idModulo ORDER BY pp.id DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
     res.json({ ok: true, data: result.recordset, page, totalPages: Math.ceil(totalResult.recordset[0].total / limit) || 1 });
@@ -89,7 +131,57 @@ router.get('/api/permisos-perfil', requireModuleAccess('permisos_perfil', 'consu
 });
 router.get('/api/permisos-perfil/:id', requireModuleAccess('permisos_perfil', 'detalle'), async (req, res, next) => { try { const connection = await pool; const result = await connection.request().input('id', sql.Int, req.params.id).query('SELECT id, idModulo, idPerfil, bitAgregar, bitEditar, bitConsulta, bitEliminar, bitDetalle FROM PermisosPerfil WHERE id = @id'); res.json({ ok: true, data: result.recordset[0] || null }); } catch (error) { next(error); } });
 router.post('/api/permisos-perfil', requireModuleAccess('permisos_perfil', 'agregar'), async (req, res, next) => { try { const connection = await pool; await connection.request().input('idModulo', sql.Int, req.body.idModulo).input('idPerfil', sql.Int, req.body.idPerfil).input('bitAgregar', sql.Bit, boolBody(req.body.bitAgregar)).input('bitEditar', sql.Bit, boolBody(req.body.bitEditar)).input('bitConsulta', sql.Bit, boolBody(req.body.bitConsulta)).input('bitEliminar', sql.Bit, boolBody(req.body.bitEliminar)).input('bitDetalle', sql.Bit, boolBody(req.body.bitDetalle)).query('INSERT INTO PermisosPerfil (idModulo, idPerfil, bitAgregar, bitEditar, bitConsulta, bitEliminar, bitDetalle) VALUES (@idModulo, @idPerfil, @bitAgregar, @bitEditar, @bitConsulta, @bitEliminar, @bitDetalle)'); res.json({ ok: true }); } catch (error) { next(error); } });
-router.put('/api/permisos-perfil/:id', requireModuleAccess('permisos_perfil', 'editar'), async (req, res, next) => { try { const connection = await pool; await connection.request().input('id', sql.Int, req.params.id).input('idModulo', sql.Int, req.body.idModulo).input('idPerfil', sql.Int, req.body.idPerfil).input('bitAgregar', sql.Bit, boolBody(req.body.bitAgregar)).input('bitEditar', sql.Bit, boolBody(req.body.bitEditar)).input('bitConsulta', sql.Bit, boolBody(req.body.bitConsulta)).input('bitEliminar', sql.Bit, boolBody(req.body.bitEliminar)).input('bitDetalle', sql.Bit, boolBody(req.body.bitDetalle)).query('UPDATE PermisosPerfil SET idModulo=@idModulo, idPerfil=@idPerfil, bitAgregar=@bitAgregar, bitEditar=@bitEditar, bitConsulta=@bitConsulta, bitEliminar=@bitEliminar, bitDetalle=@bitDetalle WHERE id=@id'); res.json({ ok: true }); } catch (error) { next(error); } });
+router.put('/api/permisos-perfil/:id', requireModuleAccess('permisos_perfil', 'editar'), async (req, res, next) => {
+  try {
+    const connection = await pool;
+    const id = parseInt(req.params.id || '0', 10);
+    const idPerfil = parseInt(req.body.idPerfil || '0', 10);
+    const idModulo = parseInt(req.body.idModulo || '0', 10);
+
+    if (id > 0) {
+      await connection.request()
+        .input('id', sql.Int, id)
+        .input('idModulo', sql.Int, idModulo)
+        .input('idPerfil', sql.Int, idPerfil)
+        .input('bitAgregar', sql.Bit, boolBody(req.body.bitAgregar))
+        .input('bitEditar', sql.Bit, boolBody(req.body.bitEditar))
+        .input('bitConsulta', sql.Bit, boolBody(req.body.bitConsulta))
+        .input('bitEliminar', sql.Bit, boolBody(req.body.bitEliminar))
+        .input('bitDetalle', sql.Bit, boolBody(req.body.bitDetalle))
+        .query('UPDATE PermisosPerfil SET idModulo=@idModulo, idPerfil=@idPerfil, bitAgregar=@bitAgregar, bitEditar=@bitEditar, bitConsulta=@bitConsulta, bitEliminar=@bitEliminar, bitDetalle=@bitDetalle WHERE id=@id');
+    } else {
+      const existing = await connection.request()
+        .input('idPerfil', sql.Int, idPerfil)
+        .input('idModulo', sql.Int, idModulo)
+        .query('SELECT TOP 1 id FROM PermisosPerfil WHERE idPerfil = @idPerfil AND idModulo = @idModulo');
+
+      if (existing.recordset[0]?.id) {
+        await connection.request()
+          .input('id', sql.Int, existing.recordset[0].id)
+          .input('idModulo', sql.Int, idModulo)
+          .input('idPerfil', sql.Int, idPerfil)
+          .input('bitAgregar', sql.Bit, boolBody(req.body.bitAgregar))
+          .input('bitEditar', sql.Bit, boolBody(req.body.bitEditar))
+          .input('bitConsulta', sql.Bit, boolBody(req.body.bitConsulta))
+          .input('bitEliminar', sql.Bit, boolBody(req.body.bitEliminar))
+          .input('bitDetalle', sql.Bit, boolBody(req.body.bitDetalle))
+          .query('UPDATE PermisosPerfil SET idModulo=@idModulo, idPerfil=@idPerfil, bitAgregar=@bitAgregar, bitEditar=@bitEditar, bitConsulta=@bitConsulta, bitEliminar=@bitEliminar, bitDetalle=@bitDetalle WHERE id=@id');
+      } else {
+        await connection.request()
+          .input('idModulo', sql.Int, idModulo)
+          .input('idPerfil', sql.Int, idPerfil)
+          .input('bitAgregar', sql.Bit, boolBody(req.body.bitAgregar))
+          .input('bitEditar', sql.Bit, boolBody(req.body.bitEditar))
+          .input('bitConsulta', sql.Bit, boolBody(req.body.bitConsulta))
+          .input('bitEliminar', sql.Bit, boolBody(req.body.bitEliminar))
+          .input('bitDetalle', sql.Bit, boolBody(req.body.bitDetalle))
+          .query('INSERT INTO PermisosPerfil (idModulo, idPerfil, bitAgregar, bitEditar, bitConsulta, bitEliminar, bitDetalle) VALUES (@idModulo, @idPerfil, @bitAgregar, @bitEditar, @bitConsulta, @bitEliminar, @bitDetalle)');
+      }
+    }
+
+    res.json({ ok: true });
+  } catch (error) { next(error); }
+});
 router.delete('/api/permisos-perfil/:id', requireModuleAccess('permisos_perfil', 'eliminar'), async (req, res, next) => { try { const connection = await pool; await connection.request().input('id', sql.Int, req.params.id).query('DELETE FROM PermisosPerfil WHERE id = @id'); res.json({ ok: true }); } catch (error) { next(error); } });
 
 router.get('/api/usuarios', requireModuleAccess('usuario', 'consulta'), async (req, res, next) => {
@@ -103,8 +195,54 @@ router.get('/api/usuarios', requireModuleAccess('usuario', 'consulta'), async (r
   } catch (error) { next(error); }
 });
 router.get('/api/usuarios/:id', requireModuleAccess('usuario', 'detalle'), async (req, res, next) => { try { const connection = await pool; const result = await connection.request().input('id', sql.Int, req.params.id).query('SELECT id, strNombreUsuario, idPerfil, strPwd, idEstadoUsuario, strCorreo, strNumeroCelular, strImagen FROM Usuario WHERE id = @id'); res.json({ ok: true, data: result.recordset[0] || null }); } catch (error) { next(error); } });
-router.post('/api/usuarios', requireModuleAccess('usuario', 'agregar'), upload.single('strImagen'), async (req, res, next) => { try { const strImagen = req.file ? `/uploads/users/${req.file.filename}` : null; const connection = await pool; await connection.request().input('strNombreUsuario', sql.VarChar(80), req.body.strNombreUsuario).input('idPerfil', sql.Int, req.body.idPerfil).input('strPwd', sql.VarChar(120), req.body.strPwd).input('idEstadoUsuario', sql.Int, req.body.idEstadoUsuario).input('strCorreo', sql.VarChar(120), req.body.strCorreo).input('strNumeroCelular', sql.VarChar(20), req.body.strNumeroCelular).input('strImagen', sql.VarChar(255), strImagen).query('INSERT INTO Usuario (strNombreUsuario, idPerfil, strPwd, idEstadoUsuario, strCorreo, strNumeroCelular, strImagen) VALUES (@strNombreUsuario, @idPerfil, @strPwd, @idEstadoUsuario, @strCorreo, @strNumeroCelular, @strImagen)'); res.json({ ok: true }); } catch (error) { next(error); } });
-router.put('/api/usuarios/:id', requireModuleAccess('usuario', 'editar'), upload.single('strImagen'), async (req, res, next) => { try { const connection = await pool; let strImagen = null; if (req.file) { strImagen = `/uploads/users/${req.file.filename}`; } else { const oldData = await connection.request().input('id', sql.Int, req.params.id).query('SELECT strImagen FROM Usuario WHERE id = @id'); strImagen = oldData.recordset[0]?.strImagen || null; } await connection.request().input('id', sql.Int, req.params.id).input('strNombreUsuario', sql.VarChar(80), req.body.strNombreUsuario).input('idPerfil', sql.Int, req.body.idPerfil).input('strPwd', sql.VarChar(120), req.body.strPwd).input('idEstadoUsuario', sql.Int, req.body.idEstadoUsuario).input('strCorreo', sql.VarChar(120), req.body.strCorreo).input('strNumeroCelular', sql.VarChar(20), req.body.strNumeroCelular).input('strImagen', sql.VarChar(255), strImagen).query('UPDATE Usuario SET strNombreUsuario=@strNombreUsuario, idPerfil=@idPerfil, strPwd=@strPwd, idEstadoUsuario=@idEstadoUsuario, strCorreo=@strCorreo, strNumeroCelular=@strNumeroCelular, strImagen=@strImagen WHERE id=@id'); res.json({ ok: true }); } catch (error) { next(error); } });
+router.post('/api/usuarios', requireModuleAccess('usuario', 'agregar'), upload.single('strImagen'), async (req, res, next) => {
+  try {
+    const telefono = onlyDigits(req.body.strNumeroCelular);
+    if (!isValidPhone(telefono)) {
+      return res.status(400).json({ ok: false, message: 'El número de teléfono debe tener exactamente 10 dígitos.' });
+    }
+
+    const strImagen = req.file ? `/uploads/users/${req.file.filename}` : null;
+    const connection = await pool;
+    await connection.request()
+      .input('strNombreUsuario', sql.VarChar(80), req.body.strNombreUsuario)
+      .input('idPerfil', sql.Int, req.body.idPerfil)
+      .input('strPwd', sql.VarChar(120), req.body.strPwd)
+      .input('idEstadoUsuario', sql.Int, req.body.idEstadoUsuario)
+      .input('strCorreo', sql.VarChar(120), req.body.strCorreo)
+      .input('strNumeroCelular', sql.VarChar(10), telefono)
+      .input('strImagen', sql.VarChar(255), strImagen)
+      .query('INSERT INTO Usuario (strNombreUsuario, idPerfil, strPwd, idEstadoUsuario, strCorreo, strNumeroCelular, strImagen) VALUES (@strNombreUsuario, @idPerfil, @strPwd, @idEstadoUsuario, @strCorreo, @strNumeroCelular, @strImagen)');
+    res.json({ ok: true });
+  } catch (error) { next(error); }
+});
+router.put('/api/usuarios/:id', requireModuleAccess('usuario', 'editar'), upload.single('strImagen'), async (req, res, next) => {
+  try {
+    const telefono = onlyDigits(req.body.strNumeroCelular);
+    if (!isValidPhone(telefono)) {
+      return res.status(400).json({ ok: false, message: 'El número de teléfono debe tener exactamente 10 dígitos.' });
+    }
+
+    const connection = await pool;
+    let strImagen = null;
+    if (req.file) { strImagen = `/uploads/users/${req.file.filename}`; }
+    else {
+      const oldData = await connection.request().input('id', sql.Int, req.params.id).query('SELECT strImagen FROM Usuario WHERE id = @id');
+      strImagen = oldData.recordset[0]?.strImagen || null;
+    }
+    await connection.request()
+      .input('id', sql.Int, req.params.id)
+      .input('strNombreUsuario', sql.VarChar(80), req.body.strNombreUsuario)
+      .input('idPerfil', sql.Int, req.body.idPerfil)
+      .input('strPwd', sql.VarChar(120), req.body.strPwd)
+      .input('idEstadoUsuario', sql.Int, req.body.idEstadoUsuario)
+      .input('strCorreo', sql.VarChar(120), req.body.strCorreo)
+      .input('strNumeroCelular', sql.VarChar(10), telefono)
+      .input('strImagen', sql.VarChar(255), strImagen)
+      .query('UPDATE Usuario SET strNombreUsuario=@strNombreUsuario, idPerfil=@idPerfil, strPwd=@strPwd, idEstadoUsuario=@idEstadoUsuario, strCorreo=@strCorreo, strNumeroCelular=@strNumeroCelular, strImagen=@strImagen WHERE id=@id');
+    res.json({ ok: true });
+  } catch (error) { next(error); }
+});
 router.delete('/api/usuarios/:id', requireModuleAccess('usuario', 'eliminar'), async (req, res, next) => { try { const connection = await pool; await connection.request().input('id', sql.Int, req.params.id).query('DELETE FROM Usuario WHERE id = @id'); res.json({ ok: true }); } catch (error) { next(error); } });
 
 module.exports = router;
