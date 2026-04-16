@@ -25,14 +25,14 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Gafass/Express-Render.git"
+    "url": "git+https://github.com/EsauRamireZ/PythonFinal.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Gafass/Express-Render/issues"
+    "url": "https://github.com/EsauRamireZ/PythonFinal/issues"
   },
-  "homepage": "https://github.com/Gafass/Express-Render#readme",
+  "homepage": "https://github.com/EsauRamireZ/PythonFinal#readme",
   "description": ""
 }
