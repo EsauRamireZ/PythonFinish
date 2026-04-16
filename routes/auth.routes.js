@@ -5,8 +5,8 @@ const axios = require('axios');
 const { signToken, requireAuth, loadPermissions } = require('../middleware/auth');
 const { getDashboardPayload } = require('../services/dashboard-data');
 
-const RECAPTCHA_SECRET = '6LebTlYsAAAAAD0Q3XM3e6ah7CctvUEK4OEclWDR';
-const RECAPTCHA_SITE = '6LebTlYsAAAAADnLSamRI9p-VJYYovtlyxHeRD-8';
+const RECAPTCHA_SECRET = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+const RECAPTCHA_SITE = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
 
 router.get('/', (req, res) => {
   res.render('login', { error: req.query.error || '', siteKey: RECAPTCHA_SITE });
